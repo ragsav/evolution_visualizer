@@ -2,13 +2,14 @@ import logo from './logo.svg';
 import './App.css';
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import Screen from './components/screen';
+// import Screen from './components/screen';
 import { GlobalContextProvider } from './context/globalContext';
+import Earth from "./components/screen";
 function App() {
   return (
     <div className="App">
       <GlobalContextProvider>
-        <Screen></Screen>
+        <Earth></Earth>
       </GlobalContextProvider>
     </div>
   );

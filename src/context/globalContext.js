@@ -11,17 +11,19 @@ const GlobalContextProvider = ({ children }) => {
   
 
   const [status,setStatus] = useState("Paused")
+  const [restarted, setRestart] = useState(true);
   const [speed,setSpeed] = useState(1);
 
   return (
     <GlobalStateContext.Provider
       value={{
         status,
-        speed
+        speed,
+        restarted
       }}
       
     >
-      <GlobalActionsContext.Provider value={{ setStatus ,setSpeed}}>
+      <GlobalActionsContext.Provider value={{ setStatus ,setSpeed,setRestart}}>
         {children}
       </GlobalActionsContext.Provider>
     </GlobalStateContext.Provider>

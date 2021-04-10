@@ -21,33 +21,59 @@ function ValueLabelComponent(props) {
 }
 
 const Statisitcs = (props) => {
-  const { setStatus, setSpeed } = useGlobalActions();
-  const { status, speed } = useGlobalState();
+  const { setStatus, setSpeed, setRestart } = useGlobalActions();
+  const { status, speed ,restarted} = useGlobalState();
 
   return (
     <Card
-      style={{ padding: 0, margin: 4, top: 4, left: 4, width: 300, zIndex: 10 }}
+      style={{
+        padding: 0,
+        margin: 4,
+        top: 4,
+        left: 4,
+        width: 300,
+        zIndex: 10,
+        border: "none",
+        borderRadius: 2,
+      }}
     >
       <ModalHeader style={{ padding: 0, margin: 0 }}>
         <Row style={{ padding: 4, margin: 0, width: "100%" }}>
-          <Col style={{ padding: 2, margin: 0, textAlign: "start" }}>
+          <Col
+            style={{
+              padding: 2,
+              margin: 0,
+              textAlign: "start",
+              fontSize: 14,
+              fontWeight: "500",
+            }}
+          >
             Statisitcs
           </Col>
           <Col
             style={{
-              padding: 0,
+              padding: 2,
               margin: 0,
-              textAlign: "end",
+              display:"flex",
+              alignItems:"center",
+              justifyContent:"flex-end"
             }}
           >
             <IconButton
-              style={{ padding: 0, margin: 0 }}
+              variant="outline-dark"
+              style={{
+                padding: 2,
+                boxShadow: "none",
+                fontWeight: "400",
+                
+                fontSize: 10,
+              }}
               onClick={(e) => {
                 e.preventDefault();
                 props.setIsStatsVisible(false);
               }}
             >
-              <ClearIcon fontSize="small"></ClearIcon>
+                <ClearIcon style={{fontSize:14}}></ClearIcon>
             </IconButton>
           </Col>
         </Row>
@@ -63,6 +89,7 @@ const Statisitcs = (props) => {
             }}
             onClick={(e) => {
               e.preventDefault();
+              setRestart(false);
               status.localeCompare("Playing") === 0
                 ? setStatus("Paused")
                 : setStatus("Playing");
@@ -72,6 +99,7 @@ const Statisitcs = (props) => {
           </Button>
           <Button
             //   disabled={status.localeCompare("Finished") === 0}
+            disabled={restarted}
             variant="dark"
             style={{
               padding: "2px 8px 2px 8px",
@@ -81,26 +109,33 @@ const Statisitcs = (props) => {
             }}
             onClick={(e) => {
               e.preventDefault();
-              status.localeCompare("Finished") === 0
-                ? setStatus("Playing")
-                : setStatus("Finished");
+              setStatus("Paused");
+              setRestart(true);
+              
+              
             }}
           >
-            {status.localeCompare("Finished") === 0
-              ? "Start simulation"
-              : "Finish"}
+            Stop
           </Button>
         </ButtonGroup>
       </Row>
       <Divider></Divider>
-      <Row style={{ margin: 0, padding: "4px 8px 4px 8px" }}>
-        <Grid container spacing={2}>
-          <Grid item style={{ fontSize: 14, fontWeight: "500" }}>
+      <Row style={{ margin: 0, padding: 4 }}>
+        <Grid container spacing={2} style={{ padding: 0, margin: 0 }}>
+          <Grid
+            item
+            style={{ padding: 4, margin: 0, fontSize: 12, fontWeight: "500" }}
+          >
             Speed
           </Grid>
-          <Grid item xs>
+          <Grid
+            item
+            xs
+            style={{ padding: "4px 16px 4px 16px", margin: 0, fontSize: 10, fontWeight: "500" }}
+          >
             <Slider
               style={{ boxShadow: "none" }}
+              style={{ padding: 0 }}
               ValueLabelComponent={ValueLabelComponent}
               value={speed}
               min={1}

@@ -8,10 +8,11 @@ import { v4 as uuidv4 } from "uuid";
 const Node = (props)=>{
 
     const bounds = props.bounds;
-    const size = 10;
+    const size = 5;
     
     
     const nodeRef = useRef(null);
+    const {status,speed} = useGlobalState();
     const [position, setPosition] = useState({
       x: Math.floor(Math.random() * bounds.w),
       y: Math.floor(Math.random() * bounds.h),
@@ -20,86 +21,82 @@ const Node = (props)=>{
 
     
     useEffect(()=>{
-        var timeInterval = setInterval(()=>{
-            
-            
-            
-            const pos = [1,-1]
-            const skipX = Math.floor(Math.random()*50);
-            const skipY = Math.floor(Math.random() * 50);
+        if(status.localeCompare("Playing")===0){
+            var timeInterval = setInterval(() => {
+              const pos = [1, -1];
+              const skipX = Math.floor(Math.random() * 100);
+              const skipY = Math.floor(Math.random() *100);
 
-            const plusMinusX = Math.floor(Math.random()*2);
-            const plusMinusY = Math.floor(Math.random() * 2);
+              const plusMinusX = Math.floor(Math.random() * 2);
+              const plusMinusY = Math.floor(Math.random() * 2);
 
-            const newPosition = {
-              x: position.x + pos[plusMinusX] * skipX,
-              y: position.y + pos[plusMinusY] * skipY,
-            };
-            if(newPosition.x > bounds.w + bounds.l){
+              const newPosition = {
+                x: position.x + pos[plusMinusX] * skipX,
+                y: position.y + pos[plusMinusY] * skipY,
+              };
+              if (newPosition.x > bounds.w + bounds.l) {
                 newPosition.x = bounds.w;
-            }
-            if (newPosition.y > bounds.h + bounds.t) {
-              newPosition.y = bounds.h;
-            }
-            if (newPosition.x < bounds.l) {
-              newPosition.x = bounds.l;
-            }
-            if (newPosition.y< bounds.t) {
-              newPosition.y = bounds.t;
-            }
+              }
+              if (newPosition.y > bounds.h + bounds.t) {
+                newPosition.y = bounds.h;
+              }
+              if (newPosition.x < bounds.l) {
+                newPosition.x = bounds.l;
+              }
+              if (newPosition.y < bounds.t) {
+                newPosition.y = bounds.t;
+              }
 
-            
-            setPosition({...newPosition});
-            setColor("#5EFF00");
-            if(true){
+              setPosition({ ...newPosition });
+              setColor("#5EFF00");
+              if (true) {
                 const children = nodeRef.current?.parentNode?.childNodes;
-                if(children){
-                    Object.keys(children).forEach((key) => {
-                      if (
-                        children[key]?.nodeName === "DIV" &&
-                        Math.abs(
-                          children[key].offsetLeft - nodeRef.current.offsetLeft
-                        ) < 10 &&
-                        Math.abs(
-                          children[key].offsetTop - nodeRef.current.offsetTop
-                        ) < 10 &&
-                        children[key].firstChild.id.localeCompare(
-                          `${props.uid}+123`
-                        ) !== 0
-                      ) {
-                        if (Math.random() > 0.7) {
-                          
-                          const creatures = props.creatures;
-                          const k = uuidv4();
-                          creatures.push(
-                            <Node
-                              uid={k}
-                              key={k}
-                              color = "#FF0000"
-                              screenRef={props.screenRef}
-                              setCreatures={props.setCreatures}
-                              creatures={creatures}
-                              bounds={bounds}
-                            >
-                              <span key={`${k}+123`} id={`${k}+123`}></span>
-                            </Node>
-                          );
-                          props.setCreatures([...creatures]);
-                        }
-
-                        //do mating here
+                if (children) {
+                  Object.keys(children).forEach((key) => {
+                    if (
+                      children[key]?.nodeName === "DIV" &&
+                      Math.abs(
+                        children[key].offsetLeft - nodeRef.current.offsetLeft
+                      ) < 10 &&
+                      Math.abs(
+                        children[key].offsetTop - nodeRef.current.offsetTop
+                      ) < 10 &&
+                      children[key].firstChild.id.localeCompare(
+                        `${props.uid}+123`
+                      ) !== 0
+                    ) {
+                      if (Math.random() > 0.6) {
+                        const creatures = props.creatures;
+                        const k = uuidv4();
+                        creatures.push(
+                          <Node
+                            uid={k}
+                            key={k}
+                            color="#FF0000"
+                            screenRef={props.screenRef}
+                            setCreatures={props.setCreatures}
+                            creatures={creatures}
+                            bounds={bounds}
+                          >
+                            <span key={`${k}+123`} id={`${k}+123`}></span>
+                          </Node>
+                        );
+                        props.setCreatures([...creatures]);
                       }
-                    });
-                }
-                
-            }
 
-        },100);
-        return ()=>{
-            clearInterval(timeInterval);
+                      //do mating here
+                    }
+                  });
+                }
+              }
+            },Math.random()*5000/speed);
+            return () => {
+              clearInterval(timeInterval);
+            };
         }
         
-    },[position])
+        
+    },[position,status,speed])
 
     useEffect(()=>{
         if(nodeRef&&nodeRef.current){
@@ -120,7 +117,7 @@ const Node = (props)=>{
           position: "absolute",
           borderRadius: size / 2,
           border: "none",
-          transition: "all 2s ease-in-out",
+          transition: "all 1s ease-in-out",
         }}
       >
         {props.children}

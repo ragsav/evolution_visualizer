@@ -5,6 +5,12 @@ object-assign
 */
 
 /*!
+  @mojs/core – The motion graphics toolbelt for the web
+  Oleg Solomka @legomushroom 2021 MIT
+  1.0.3
+*/
+
+/*!
   Copyright (c) 2017 Jed Watson.
   Licensed under the MIT License (MIT), see
   http://jedwatson.github.io/classnames

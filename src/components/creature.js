@@ -1,20 +1,42 @@
 import { createRef, useEffect, useRef, useState } from "react";
 import { useGlobalActions, useGlobalState } from "../context/globalContext";
 const Creature = (props) => {
-  const { status, speed } = useGlobalState();
+  const { status, speed ,earthQuakePosition,earthQuakeRadius} = useGlobalState();
   //   console.log(earthDimensions);
+
   const creatureRef = useRef(null);
   const size = 6;
-  const [color, setColor] = useState(props.color ? props.color : "#0000000");
+  const [color, setColor] = useState(
+    props.birth + 10000 > Date.now() ? "#FF4489" : "#E8FF95"
+  );
+
+  const [className, setClassName] = useState(
+    props.birth + 10000 > Date.now() ? "babyCreature" : "adultCreature"
+  );
   const [position, setPosition] = useState({
-    x: Math.floor(props.dim.w * Math.random() + props.dim.left - size / 2),
-    y: Math.floor(props.dim.h * Math.random() + props.dim.top - size / 2),
+    x:props.x?props.x: Math.floor(props.dim.w * Math.random() + props.dim.left - size / 2),
+    y:props.y?props.y: Math.floor(props.dim.h * Math.random() + props.dim.top - size / 2),
   });
+
+
+  function checkEarthQuake(){
+    if(earthQuakePosition){
+      const xDiff = Math.abs(position.x+size/2-earthQuakePosition.x)
+      const yDiff = Math.abs(position.y + size / 2 - earthQuakePosition.y);
+      if(Math.sqrt(Math.pow(xDiff,2)+Math.pow(yDiff,2))<earthQuakeRadius){
+        const event = new CustomEvent("death", {
+          detail: { uid:props.uid },
+        });
+        props.earthRef?.current?.dispatchEvent(event);
+      }
+    }
+    
+  }
 
   function changePosition() {
     const pos = [1, -1];
-    const skipX = Math.floor(Math.random() * 20);
-    const skipY = Math.floor(Math.random() * 20);
+    const skipX = Math.floor(Math.random() * speed);
+    const skipY = Math.floor(Math.random() * speed);
 
     const plusMinusX = Math.floor(Math.random() * 2);
     const plusMinusY = Math.floor(Math.random() * 2);
@@ -38,16 +60,23 @@ const Creature = (props) => {
     }
 
     setPosition(newPosition);
+    setColor(props.birth + 10000 > Date.now() ? "#FF4489" : "#E8FF95");
+
+    setClassName(
+      props.birth + 10000 > Date.now() ? "babyCreature" : "adultCreature"
+    );
+    checkEarthQuake();
   }
 
   function getNeighbourHood() {
+    const neighbourHood = {};
     const neighbours = [];
     if (creatureRef?.current) {
       const children = creatureRef.current?.parentNode?.childNodes;
       if (children) {
         Object.keys(children).forEach((key) => {
           if (
-            children[key]?.nodeName === "DIV" &&
+            children[key]?.className.localeCompare("adultCreature") === 0 &&
             Math.abs(children[key].offsetLeft - position.x) < 10 &&
             Math.abs(children[key].offsetTop - position.y) < 10 &&
             children[key].id.localeCompare(props.uid) !== 0
@@ -58,7 +87,8 @@ const Creature = (props) => {
       }
     }
 
-    return { neighbours };
+    neighbourHood.neighbours = neighbours;
+    return neighbourHood;
   }
 
   useEffect(() => {
@@ -66,15 +96,21 @@ const Creature = (props) => {
     if (status.localeCompare("Playing") === 0) {
       const interval = setInterval(() => {
         changePosition();
-        setColor("#000000");
-        const { neighbours } = getNeighbourHood();
-        if (neighbours.length > 0) {
-          const event = new CustomEvent("birth", {
-            detail: { mother: props.uid, candidates: neighbours },
-          });
-          props.earthRef?.current?.dispatchEvent(event);
+        if(className.localeCompare("adultCreature")===0){
+          const { neighbours } = getNeighbourHood();
+          if (neighbours.length > 0) {
+            const event = new CustomEvent("birth", {
+              detail: {
+                mother: props.uid,
+                candidates: neighbours,
+                position: position,
+              },
+            });
+            props.earthRef?.current?.dispatchEvent(event);
+          }
         }
-      }, Math.floor((Math.random() * 5000) / speed) + 10);
+        
+      }, Math.floor((Math.random() * 500)) + 10);
       return () => {
         clearInterval(interval);
       };
@@ -82,17 +118,25 @@ const Creature = (props) => {
   }, [position, status, speed]);
   return (
     <div
+      className={className}
       ref={creatureRef}
       id={props.uid}
       style={{
         borderRadius: size / 2,
         height: size,
         width: size,
-        backgroundColor: props.color,
+        backgroundColor: color,
         position: "absolute",
         top: position.y,
         left: position.x,
         transition: "all 0.5s ease-in-out",
+        WebkitBoxShadow:
+          props.birth + 10000 > Date.now() ? "0 0 10px #FF4489" : "none",
+        boxShadow:
+         
+         
+         
+          props.birth + 10000 > Date.now() ? "0 0 10px #FF4489" : "none",
       }}
     ></div>
   );

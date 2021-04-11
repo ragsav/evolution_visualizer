@@ -70,7 +70,7 @@ const Statisitcs = (props) => {
               }}
               onClick={(e) => {
                 e.preventDefault();
-                props.setIsStatsVisible(false);
+                props.closeStats();
               }}
             >
                 <ClearIcon style={{fontSize:14}}></ClearIcon>

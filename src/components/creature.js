@@ -1,7 +1,7 @@
 import { createRef, useEffect, useRef, useState } from "react";
 import { useGlobalActions, useGlobalState } from "../context/globalContext";
 const Creature = (props) => {
-  const { status, speed ,earthQuakePosition,earthQuakeRadius} = useGlobalState();
+  const { status, speed,calamities } = useGlobalState();
   //   console.log(earthDimensions);
 
   const creatureRef = useRef(null);
@@ -19,21 +19,31 @@ const Creature = (props) => {
   });
 
 
-  function checkEarthQuake(){
-    if(earthQuakePosition){
-      const xDiff = Math.abs(position.x+size/2-earthQuakePosition.x)
-      const yDiff = Math.abs(position.y + size / 2 - earthQuakePosition.y);
-      if(Math.sqrt(Math.pow(xDiff,2)+Math.pow(yDiff,2))<earthQuakeRadius){
-        const event = new CustomEvent("death", {
-          detail: { uid:props.uid },
-        });
-        props.earthRef?.current?.dispatchEvent(event);
+  function checkCalamity(){
+    // console.log(calamities.length)
+    if(calamities.length>0){
+
+      for(var i=0;i<calamities.length;i++){
+        const xDiff = Math.abs(position.x + size / 2 - calamities[i].position.x);
+        const yDiff = Math.abs(position.y + size / 2 - calamities[i].position.y);
+        if (
+          Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2)) < calamities[i].size
+        ) {
+          const event = new CustomEvent("death", {
+            detail: { uid: props.uid },
+          });
+          props.earthRef?.current?.dispatchEvent(event);
+        }
       }
+      
     }
     
   }
 
   function changePosition() {
+    checkCalamity();
+
+
     const pos = [1, -1];
     const skipX = Math.floor(Math.random() * speed);
     const skipY = Math.floor(Math.random() * speed);
@@ -65,7 +75,7 @@ const Creature = (props) => {
     setClassName(
       props.birth + 10000 > Date.now() ? "babyCreature" : "adultCreature"
     );
-    checkEarthQuake();
+    
   }
 
   function getNeighbourHood() {

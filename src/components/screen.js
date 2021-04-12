@@ -8,17 +8,21 @@ import DehazeIcon from "@material-ui/icons/Dehaze";
 import { useGlobalActions, useGlobalState } from "../context/globalContext";
 import Statisitcs from "./statistics";
 import EarthQuake from "./earthQuake";
+import Volcano from "./volcana";
+import Radiation from "./radiation";
 
 // const demo = Array.from(Array(100).keys());
 
 const Earth = () => {
   const {
-    status,
     restarted,
-    earthQuakePosition,
-    earthQuakeDuration,
+    calamityType,
+    calamities
+    
   } = useGlobalState();
-  const { setEarthQuakePosition } = useGlobalActions();
+  const {
+    setCalamityPosition,
+  } = useGlobalActions();
   const [creatures, setCreatures] = useState([]);
   const [earthDimensions, setEarthDimensions] = useState(null);
   const [isStatsVisible, setIsStatsVisible] = useState(false);
@@ -27,6 +31,9 @@ const Earth = () => {
   const creaturesRef = useRef([]);
   const birthCache = useRef([]);
 
+  
+
+  
   function newBirth(parents) {
     const birthCacheTemp = birthCache.current;
     const l = birthCacheTemp.length;
@@ -148,37 +155,24 @@ const Earth = () => {
     }
   }, [earthRef]);
 
-  function makeEarthQuake(x, y) {
-    const event = new CustomEvent("earthQuake", {
-      detail: { x, y },
-    });
-    earthRef?.current?.dispatchEvent(event);
-  }
-  useEffect(() => {
-    if (earthQuakePosition) {
-      const interval = setInterval(() => {
-        setEarthQuakePosition(null);
-      }, [earthQuakeDuration]);
+  
+  
 
-      return () => {
-        clearInterval(interval);
-      };
-    }
-  }, [earthQuakePosition, earthQuakeDuration]);
-
+  
   function handleEarthMouseDown(e) {
     e.preventDefault();
+    if (isStatsVisible && e.clientX>320) {
+      setIsStatsVisible(false);
+    }
     if (!mouseOnStats && !isStatsVisible) {
       if (e.button === 0) {
-        makeEarthQuake(
-          e.clientX - earthDimensions.left,
-          e.clientY - earthDimensions.top
-        );
-        setEarthQuakePosition({
-          x: e.clientX - earthDimensions.left,
-          y: e.clientY - earthDimensions.top,
-        });
-        // addNewCreature({ color: "#004CFF" });
+        if(calamityType.localeCompare("none")!==0&&calamities.length<5){
+          
+          setCalamityPosition({
+            x: e.clientX - earthDimensions.left,
+            y: e.clientY - earthDimensions.top,
+          });
+        }
       } else {
         removeRandom();
       }
@@ -188,10 +182,48 @@ const Earth = () => {
     <div
       id="earth"
       ref={earthRef}
-      style={{ backgroundColor: "#222222", height: "100%", width: "100%" }}
+      style={{
+        backgroundColor: "#222222",
+        height: "100%",
+        width: "100%",
+        overflow: "hidden",
+      }}
       onMouseDown={handleEarthMouseDown}
     >
-      <EarthQuake duration={3000} earthRef={earthRef}></EarthQuake>
+      {calamities?calamities.map((calamity)=>{
+        if(calamity.type.localeCompare("earthQuake")===0){
+          return (
+            <EarthQuake
+              key={`${calamity.id}+calamity`}
+              size={calamity.size}
+              amplitude={calamity.amplitude}
+              duration={calamity.duration}
+              position={calamity.position}
+            />
+          );
+        }
+        else if (calamity.type.localeCompare("volcano") === 0) {
+          return (
+            <Volcano
+              key={`${calamity.id}+calamity`}
+              size={calamity.size}
+              amplitude={calamity.amplitude}
+              duration={calamity.duration}
+              position={calamity.position}
+            />
+          );
+        } else if (calamity.type.localeCompare("radiation") === 0) {
+          return (
+            <Radiation
+              key={`${calamity.id}+calamity`}
+              size={calamity.size}
+              amplitude={calamity.amplitude}
+              duration={calamity.duration}
+              position={calamity.position}
+            />
+          );
+        }
+      }):null}
       {earthRef && earthDimensions
         ? creatures.map((creature) => {
             return (

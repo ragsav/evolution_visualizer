@@ -1,26 +1,26 @@
 {
   "files": {
     "main.css": "/evolution_visualizer/static/css/main.7382ff21.chunk.css",
-    "main.js": "/evolution_visualizer/static/js/main.9b2a7ad1.chunk.js",
-    "main.js.map": "/evolution_visualizer/static/js/main.9b2a7ad1.chunk.js.map",
-    "runtime-main.js": "/evolution_visualizer/static/js/runtime-main.ef0e5c8a.js",
-    "runtime-main.js.map": "/evolution_visualizer/static/js/runtime-main.ef0e5c8a.js.map",
+    "main.js": "/evolution_visualizer/static/js/main.10a61e2e.chunk.js",
+    "main.js.map": "/evolution_visualizer/static/js/main.10a61e2e.chunk.js.map",
+    "runtime-main.js": "/evolution_visualizer/static/js/runtime-main.2423933c.js",
+    "runtime-main.js.map": "/evolution_visualizer/static/js/runtime-main.2423933c.js.map",
     "static/css/2.4c97ca4f.chunk.css": "/evolution_visualizer/static/css/2.4c97ca4f.chunk.css",
-    "static/js/2.2baf5450.chunk.js": "/evolution_visualizer/static/js/2.2baf5450.chunk.js",
-    "static/js/2.2baf5450.chunk.js.map": "/evolution_visualizer/static/js/2.2baf5450.chunk.js.map",
-    "static/js/3.48893e5f.chunk.js": "/evolution_visualizer/static/js/3.48893e5f.chunk.js",
-    "static/js/3.48893e5f.chunk.js.map": "/evolution_visualizer/static/js/3.48893e5f.chunk.js.map",
+    "static/js/2.4d607518.chunk.js": "/evolution_visualizer/static/js/2.4d607518.chunk.js",
+    "static/js/2.4d607518.chunk.js.map": "/evolution_visualizer/static/js/2.4d607518.chunk.js.map",
+    "static/js/3.b9e20e33.chunk.js": "/evolution_visualizer/static/js/3.b9e20e33.chunk.js",
+    "static/js/3.b9e20e33.chunk.js.map": "/evolution_visualizer/static/js/3.b9e20e33.chunk.js.map",
     "index.html": "/evolution_visualizer/index.html",
     "static/css/2.4c97ca4f.chunk.css.map": "/evolution_visualizer/static/css/2.4c97ca4f.chunk.css.map",
     "static/css/main.7382ff21.chunk.css.map": "/evolution_visualizer/static/css/main.7382ff21.chunk.css.map",
-    "static/js/2.2baf5450.chunk.js.LICENSE.txt": "/evolution_visualizer/static/js/2.2baf5450.chunk.js.LICENSE.txt",
+    "static/js/2.4d607518.chunk.js.LICENSE.txt": "/evolution_visualizer/static/js/2.4d607518.chunk.js.LICENSE.txt",
     "static/media/logo.6ce24c58.svg": "/evolution_visualizer/static/media/logo.6ce24c58.svg"
   },
   "entrypoints": [
-    "static/js/runtime-main.ef0e5c8a.js",
+    "static/js/runtime-main.2423933c.js",
     "static/css/2.4c97ca4f.chunk.css",
-    "static/js/2.2baf5450.chunk.js",
+    "static/js/2.4d607518.chunk.js",
     "static/css/main.7382ff21.chunk.css",
-    "static/js/main.9b2a7ad1.chunk.js"
+    "static/js/main.10a61e2e.chunk.js"
   ]
 }

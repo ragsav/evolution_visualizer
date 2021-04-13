@@ -2,12 +2,12 @@
   text-align: center;
   height: 100vh;
   width: 100vw;
-  padding: 10px;
   overflow: hidden;
   overflow-y: hidden;
   overflow-x: hidden;
   background-color: #222222;
   position: relative;
+  display: flex;
 }
 
 .App-logo {

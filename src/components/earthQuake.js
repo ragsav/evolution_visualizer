@@ -78,6 +78,7 @@ const EarthQuake = ({ earthRef, position, amplitude, size, duration }) => {
     <div
       ref={animDom}
       className="EarthQuake"
+      // class="shake-hard shake-constant"
       style={{ position: "absolute" }}
     ></div>
   );

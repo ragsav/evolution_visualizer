@@ -37,6 +37,8 @@ const Statisitcs = (props) => {
     setCalamityAmplitude,
     setCalamityDuration,
     setCalamitySize,
+    setResourceType,
+    setResourceSize
   } = useGlobalActions();
   const {
     status,
@@ -46,64 +48,25 @@ const Statisitcs = (props) => {
     calamityAmplitude,
     calamityDuration,
     calamitySize,
+    resourceType,
+    resourceSize
   } = useGlobalState();
 
   return (
     <Card
       style={{
-        padding: 0,
-        margin: 4,
-        top: 4,
-        left: 4,
+        padding: 4,
+
+        borderRadius: 0,
+
         width: 300,
         // zIndex: 10,
 
+        overflowY: "scroll",
+        height: "100%",
         border: "none",
-        borderRadius: 2,
       }}
     >
-      <ModalHeader style={{ padding: 0, margin: 0 }}>
-        <Row style={{ padding: 4, margin: 0, width: "100%" }}>
-          <Col
-            style={{
-              padding: 2,
-              margin: 0,
-              textAlign: "start",
-              fontSize: 14,
-              fontWeight: "500",
-            }}
-          >
-            Statisitcs
-          </Col>
-          <Col
-            style={{
-              padding: 2,
-              margin: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "flex-end",
-            }}
-          >
-            <IconButton
-              variant="outline-dark"
-              style={{
-                padding: 2,
-                boxShadow: "none",
-                fontWeight: "400",
-
-                fontSize: 10,
-              }}
-              onClick={(e) => {
-                e.preventDefault();
-                props.closeStats();
-              }}
-            >
-              <ClearIcon style={{ fontSize: 14 }}></ClearIcon>
-            </IconButton>
-          </Col>
-        </Row>
-      </ModalHeader>
-
       <Row style={{ margin: 0, padding: 4 }}>
         <ButtonGroup>
           <Button
@@ -187,210 +150,307 @@ const Statisitcs = (props) => {
         </Grid>
       </Row>
 
-      <Divider></Divider>
-
-      <Row style={{ margin: 0, padding: "8px 4px 4px 4px" }}>
-        <FormControl
-          variant="outlined"
-          style={{ width: "100%", padding: 0 }}
-          size="small"
-        >
-          <InputLabel id="calamity-selector-label" style={{}}>
-            Calamity
-          </InputLabel>
-          <Select
-            // id="calamity-selector"
-            // defaultValue="volcano"
-            // labelWidth={100}
-            label="Calamity"
-            labelId="calamity-selector-label"
-            value={calamityType}
-            onChange={(e) => {
-              e.preventDefault();
-              setCalamityType(e.target.value);
-            }}
-            style={{
-              padding: 0,
-              margin: 0,
-              fontSize: 14,
-              fontWeight: "500",
-            }}
+      <div style={{ borderRadius: 4, border: "1px solid #858585", padding: 2 ,margin:2}}>
+        <Row style={{ margin: 0, padding: "8px 4px 4px 4px" }}>
+          <FormControl
+            variant="outlined"
+            style={{ width: "100%", padding: 0 }}
+            size="small"
           >
-            <MenuItem
-              value="none"
-              style={{
-                padding: 4,
-                margin: 0,
-                fontSize: 12,
-                fontWeight: "500",
-              }}
-            >
-              None
-            </MenuItem>
-            <MenuItem
-              value="radiation"
-              style={{
-                padding: 4,
-                margin: 0,
-                fontSize: 12,
-                fontWeight: "500",
-              }}
-            >
-              Radiation
-            </MenuItem>
-            <MenuItem
-              value="earthQuake"
-              style={{
-                padding: 4,
-                margin: 0,
-                fontSize: 12,
-                fontWeight: "500",
-              }}
-            >
-              Earth Quake
-            </MenuItem>
-            <MenuItem
-              value="volcano"
-              style={{
-                padding: 4,
-                margin: 0,
-                fontSize: 12,
-                fontWeight: "500",
-              }}
-            >
-              Volcano
-            </MenuItem>
-          </Select>
-        </FormControl>
-      </Row>
-
-      <Row style={{ margin: 0, padding: 4 }}>
-        <Grid container spacing={2} style={{ padding: 0, margin: 0 }}>
-          <Grid
-            item
-            xs={6}
-            style={{
-              padding: 4,
-              margin: 0,
-              fontSize: 12,
-              fontWeight: "500",
-              textAlign: "start",
-            }}
-          >
-            Calamity size
-          </Grid>
-          <Grid
-            item
-            xs={6}
-            style={{
-              padding: "4px 16px 4px 16px",
-              margin: 0,
-              fontSize: 10,
-              fontWeight: "500",
-            }}
-          >
-            <Slider
-              style={{ boxShadow: "none" }}
-              style={{ padding: 0 }}
-              ValueLabelComponent={ValueLabelComponent}
-              value={calamitySize}
-              min={10}
-              max={100}
-              step={1}
-              onChange={(e, v) => {
+            <InputLabel id="calamity-selector-label" style={{}}>
+              Calamity
+            </InputLabel>
+            <Select
+              label="Calamity"
+              labelId="calamity-selector-label"
+              value={calamityType}
+              onChange={(e) => {
                 e.preventDefault();
-                setCalamitySize(v);
+                setResourceType("none");
+                setCalamityType(e.target.value);
               }}
-            />
-          </Grid>
-        </Grid>
-      </Row>
-      <Divider></Divider>
-      <Row style={{ margin: 0, padding: 4 }}>
-        <Grid container spacing={2} style={{ padding: 0, margin: 0 }}>
-          <Grid
-            item
-            xs={6}
-            style={{
-              padding: 4,
-              margin: 0,
-              fontSize: 12,
-              fontWeight: "500",
-              textAlign: "start",
-            }}
-          >
-            Calamity amplitude
-          </Grid>
-          <Grid
-            item
-            xs={6}
-            style={{
-              padding: "4px 16px 4px 16px",
-              margin: 0,
-              fontSize: 10,
-              fontWeight: "500",
-            }}
-          >
-            <Slider
-              style={{ boxShadow: "none" }}
-              style={{ padding: 0 }}
-              ValueLabelComponent={ValueLabelComponent}
-              value={calamityAmplitude}
-              min={1}
-              max={10}
-              step={1}
-              onChange={(e, v) => {
-                e.preventDefault();
-                setCalamityAmplitude(v);
+              style={{
+                padding: 0,
+                margin: 0,
+                fontSize: 14,
+                fontWeight: "500",
               }}
-            />
-          </Grid>
-        </Grid>
-      </Row>
-      <Divider></Divider>
+            >
+              <MenuItem
+                value="none"
+                style={{
+                  padding: 4,
+                  margin: 0,
+                  fontSize: 12,
+                  fontWeight: "500",
+                }}
+              >
+                None
+              </MenuItem>
+              <MenuItem
+                value="radiation"
+                style={{
+                  padding: 4,
+                  margin: 0,
+                  fontSize: 12,
+                  fontWeight: "500",
+                }}
+              >
+                Radiation
+              </MenuItem>
+              <MenuItem
+                value="earthQuake"
+                style={{
+                  padding: 4,
+                  margin: 0,
+                  fontSize: 12,
+                  fontWeight: "500",
+                }}
+              >
+                Earth Quake
+              </MenuItem>
+              <MenuItem
+                value="volcano"
+                style={{
+                  padding: 4,
+                  margin: 0,
+                  fontSize: 12,
+                  fontWeight: "500",
+                }}
+              >
+                Volcano
+              </MenuItem>
+            </Select>
+          </FormControl>
+        </Row>
 
-      <Row style={{ margin: 0, padding: 4 }}>
-        <Grid container spacing={2} style={{ padding: 0, margin: 0 }}>
-          <Grid
-            item
-            xs={6}
-            style={{
-              padding: 4,
-              margin: 0,
-              fontSize: 12,
-              fontWeight: "500",
-              textAlign: "start",
-            }}
-          >
-            Calamity duration
-          </Grid>
-          <Grid
-            item
-            xs={6}
-            style={{
-              padding: "4px 16px 4px 16px",
-              margin: 0,
-              fontSize: 10,
-              fontWeight: "500",
-            }}
-          >
-            <Slider
-              style={{ boxShadow: "none" }}
-              style={{ padding: 0 }}
-              ValueLabelComponent={ValueLabelComponent}
-              value={calamityDuration}
-              min={2000}
-              max={100000}
-              step={1000}
-              onChange={(e, v) => {
-                e.preventDefault();
-                setCalamityDuration(v);
+        <Row style={{ margin: 0, padding: 4 }}>
+          <Grid container spacing={2} style={{ padding: 0, margin: 0 }}>
+            <Grid
+              item
+              xs={6}
+              style={{
+                padding: 4,
+                margin: 0,
+                fontSize: 12,
+                fontWeight: "500",
+                textAlign: "start",
               }}
-            />
+            >
+              Calamity size
+            </Grid>
+            <Grid
+              item
+              xs={6}
+              style={{
+                padding: "4px 16px 4px 16px",
+                margin: 0,
+                fontSize: 10,
+                fontWeight: "500",
+              }}
+            >
+              <Slider
+                style={{ boxShadow: "none" }}
+                style={{ padding: 0 }}
+                ValueLabelComponent={ValueLabelComponent}
+                value={calamitySize}
+                min={10}
+                max={500}
+                step={1}
+                onChange={(e, v) => {
+                  e.preventDefault();
+                  setCalamitySize(v);
+                }}
+              />
+            </Grid>
           </Grid>
-        </Grid>
-      </Row>
-      <Divider></Divider>
+        </Row>
+
+        <Divider></Divider>
+
+        <Row style={{ margin: 0, padding: 4 }}>
+          <Grid container spacing={2} style={{ padding: 0, margin: 0 }}>
+            <Grid
+              item
+              xs={6}
+              style={{
+                padding: 4,
+                margin: 0,
+                fontSize: 12,
+                fontWeight: "500",
+                textAlign: "start",
+              }}
+            >
+              Calamity amplitude
+            </Grid>
+            <Grid
+              item
+              xs={6}
+              style={{
+                padding: "4px 16px 4px 16px",
+                margin: 0,
+                fontSize: 10,
+                fontWeight: "500",
+              }}
+            >
+              <Slider
+                style={{ boxShadow: "none" }}
+                style={{ padding: 0 }}
+                ValueLabelComponent={ValueLabelComponent}
+                value={calamityAmplitude}
+                min={1}
+                max={10}
+                step={1}
+                onChange={(e, v) => {
+                  e.preventDefault();
+                  setCalamityAmplitude(v);
+                }}
+              />
+            </Grid>
+          </Grid>
+        </Row>
+
+        <Divider></Divider>
+
+        <Row style={{ margin: 0, padding: 4 }}>
+          <Grid container spacing={2} style={{ padding: 0, margin: 0 }}>
+            <Grid
+              item
+              xs={6}
+              style={{
+                padding: 4,
+                margin: 0,
+                fontSize: 12,
+                fontWeight: "500",
+                textAlign: "start",
+              }}
+            >
+              Calamity duration
+            </Grid>
+            <Grid
+              item
+              xs={6}
+              style={{
+                padding: "4px 16px 4px 16px",
+                margin: 0,
+                fontSize: 10,
+                fontWeight: "500",
+              }}
+            >
+              <Slider
+                style={{ boxShadow: "none" }}
+                style={{ padding: 0 }}
+                ValueLabelComponent={ValueLabelComponent}
+                value={calamityDuration}
+                min={2000}
+                max={100000}
+                step={1000}
+                onChange={(e, v) => {
+                  e.preventDefault();
+                  setCalamityDuration(v);
+                }}
+              />
+            </Grid>
+          </Grid>
+        </Row>
+      </div>
+
+      <div style={{ borderRadius: 4, border: "1px solid #858585", padding: 2 ,margin:2}}>
+        <Row style={{ margin: 0, padding: "8px 4px 4px 4px" }}>
+          <FormControl
+            variant="outlined"
+            style={{ width: "100%", padding: 0 }}
+            size="small"
+          >
+            <InputLabel id="resources-selector-label" style={{}}>
+              Resources
+            </InputLabel>
+            <Select
+              label="Resources"
+              labelId="resources-selector-label"
+              value={resourceType}
+              onChange={(e) => {
+                e.preventDefault();
+                setCalamityType("none");
+                setResourceType(e.target.value);
+              }}
+              style={{
+                padding: 0,
+                margin: 0,
+                fontSize: 14,
+                fontWeight: "500",
+              }}
+            >
+              <MenuItem
+                value="none"
+                style={{
+                  padding: 4,
+                  margin: 0,
+                  fontSize: 12,
+                  fontWeight: "500",
+                }}
+              >
+                None
+              </MenuItem>
+              <MenuItem
+                value="waterBody"
+                style={{
+                  padding: 4,
+                  margin: 0,
+                  fontSize: 12,
+                  fontWeight: "500",
+                }}
+              >
+                Water body
+              </MenuItem>              
+            </Select>
+          </FormControl>
+        </Row>
+
+        <Row style={{ margin: 0, padding: 4 }}>
+          <Grid container spacing={2} style={{ padding: 0, margin: 0 }}>
+            <Grid
+              item
+              xs={6}
+              style={{
+                padding: 4,
+                margin: 0,
+                fontSize: 12,
+                fontWeight: "500",
+                textAlign: "start",
+              }}
+            >
+              Resource size
+            </Grid>
+            <Grid
+              item
+              xs={6}
+              style={{
+                padding: "4px 16px 4px 16px",
+                margin: 0,
+                fontSize: 10,
+                fontWeight: "500",
+              }}
+            >
+              <Slider
+                style={{ boxShadow: "none" }}
+                style={{ padding: 0 }}
+                ValueLabelComponent={ValueLabelComponent}
+                value={resourceSize}
+                min={10}
+                max={300}
+                step={1}
+                onChange={(e, v) => {
+                  e.preventDefault();
+                  setResourceSize(v);
+                }}
+              />
+            </Grid>
+          </Grid>
+        </Row>
+
+        <Divider></Divider>
+      </div>
     </Card>
   );
 };

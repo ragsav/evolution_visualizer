@@ -10,77 +10,207 @@ import Statisitcs from "./statistics";
 import EarthQuake from "./earthQuake";
 import Volcano from "./volcana";
 import Radiation from "./radiation";
+import WaterBody from "./waterBody";
 
 // const demo = Array.from(Array(100).keys());
 
+
+
+
+
+const isPairEqual = (a1, b1, a2, b2) => {
+  // console.log(a1,b1,a2,b2);
+  if (
+    (a1.localeCompare(a2) === 0 || a1.localeCompare(b2) === 0) &&
+    (b1.localeCompare(a2) === 0 || b1.localeCompare(b2) === 0)
+  ) {
+    return true;
+  }
+  return false;
+};
+
 const Earth = () => {
-  const {
-    restarted,
-    calamityType,
-    calamities
-    
-  } = useGlobalState();
-  const {
-    setCalamityPosition,
-  } = useGlobalActions();
+  const { restarted, calamityType, calamities, resources,resourceType } = useGlobalState();
+  const { setCalamityPosition, setResourcePosition } = useGlobalActions();
   const [creatures, setCreatures] = useState([]);
+  const [contextMenuPosition,setContextMenuPosition] = useState(null);
   const [earthDimensions, setEarthDimensions] = useState(null);
-  const [isStatsVisible, setIsStatsVisible] = useState(false);
-  const [mouseOnStats, setMouseOnStats] = useState(false);
   const earthRef = createRef();
   const creaturesRef = useRef([]);
   const birthCache = useRef([]);
 
-  
 
-  
-  function newBirth(parents) {
+  //initial population of creatures
+  function InitializeCreatures() {
+    creaturesRef.current = [];
+    for (var i = 0; i < 20; i++) {
+      addNewCreature();
+    }
+  }
+
+  //add new creature to creaturesRef
+  function addNewCreature(props) {
+    const creaturesTemp = creaturesRef.current;
+    const uid = uuidv4()
+    creaturesTemp.push({
+      uid: uid,
+      birth: Date.now(),
+      x: props?.x,
+      y: props?.y,
+      size:props?.size
+    });
+    setCreatures([...creaturesTemp]);
+    creaturesRef.current = creaturesTemp;
+    return uid;
+  }
+
+  //remove creature by id from creatureRef
+  function removeCreatureByUid(uid) {
+    const creaturesTemp = creaturesRef.current;
+    for (var i = 0; i < creaturesTemp.length; i++) {
+      if (creaturesTemp[i].uid.localeCompare(uid) === 0) {
+        creaturesTemp.splice(i, 1);
+        setCreatures([...creaturesTemp]);
+        creaturesRef.current = creaturesTemp;
+        break;
+      }
+    }
+  }
+
+  //remove random creature
+  function removeRandom() {
+    const creaturesTemp = creaturesRef.current;
+    creaturesTemp.splice(
+      Math.floor(Math.random() * creaturesRef.current.length),
+      1
+    );
+    setCreatures([...creaturesTemp]);
+    creaturesRef.current = creaturesTemp;
+  }
+
+  //handle new births wheather the parents have mate recently or not
+  function newBirth({mother,father}) {
     const birthCacheTemp = birthCache.current;
     const l = birthCacheTemp.length;
 
     var canGiveBirth = true;
     for (var i = 0; i < l; i++) {
       if (
-        (birthCacheTemp[i].mother.localeCompare(parents.mother) === 0 ||
-          birthCacheTemp[i].mother.localeCompare(parents.father) === 0) &&
-        (birthCacheTemp[i].father.localeCompare(parents.mother) === 0 ||
-          birthCacheTemp[i].father.localeCompare(parents.father) === 0)
+        isPairEqual(
+          birthCacheTemp[i].mother.id,
+          birthCacheTemp[i].father.id,
+          mother.id,
+          father.id
+        )
       ) {
-        // console.log("BirthCache hit!", parents, birthCacheTemp);
+        console.log("birth not allowed!");
         canGiveBirth = false;
         break;
       }
     }
 
-    if (birthCacheTemp.length === 0 || canGiveBirth) {
-      addNewCreature({ x: parents.x, y: parents.y });
-      birthCacheTemp.push({ ...parents });
+    if (canGiveBirth) {
+      const childId = addNewCreature({
+        x: (mother.position.x + father.position.x) / 2,
+        y: (mother.position.y + father.position.y) / 2,
+        size: (mother.size + father.size) / 2,
+      });
+      birthCacheTemp.push({mother,father});
     }
     if (birthCacheTemp.length > 100) {
       birthCacheTemp.shift();
     }
     birthCache.current = birthCacheTemp;
   }
+
+  //handle left click
+  function handleLeftClick(e) {
+    e.preventDefault();
+    if (e.button === 0) {
+      if (
+        calamityType.localeCompare("none") !== 0 &&
+        calamities.length < 5 &&
+        resourceType.localeCompare("none") === 0
+      ) {
+        setCalamityPosition({
+          x: e.clientX - earthDimensions.left,
+          y: e.clientY - earthDimensions.top,
+        });
+      } else if (
+        resourceType.localeCompare("none") !== 0 &&
+        resources.length < 5 &&
+        calamityType.localeCompare("none") === 0
+      ) {
+        
+        setResourcePosition({
+          x: e.clientX - earthDimensions.left,
+          y: e.clientY - earthDimensions.top,
+        });
+      }
+    }else if (e.button===2){
+      handleRightClick(e);
+    }
+  }
+
+  //handle right click
+  function handleRightClick(e){
+    e.preventDefault();
+    setContextMenuPosition({
+      x: e.clientX - earthDimensions.left,
+      y: e.clientY - earthDimensions.top,
+    });
+  };
+
+  
+
+
+  
+
+  //set dimensions of earth when reference is available
+  useEffect(() => {
+    if (earthRef && earthRef.current && !earthDimensions) {
+      setEarthDimensions({
+        top: earthRef.current.offsetTop,
+        left: earthRef.current.offsetLeft,
+        w: earthRef.current.offsetWidth,
+        h: earthRef.current.offsetHeight,
+      });
+      console.log(earthDimensions)
+    }
+  }, [earthRef]);
+
+
+  //adding contectmenu listener to hide contect menu on right click
+  useEffect(() => {
+    if (earthRef && earthRef.current) {
+      earthRef.current.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+      });
+
+      return () => {
+        earthRef?.current?.removeEventListener("contextmenu", handleRightClick);
+      };
+    }
+  }, [earthRef]);
+
+
+  //restart effect
+  useEffect(() => {
+    if (restarted) {
+      InitializeCreatures();
+    }
+  }, [restarted]);
+
+
+
+  //add birth and death event handlers when earth reference is available
   useEffect(() => {
     if (earthRef && earthRef.current && !earthDimensions) {
       const birthHandler = (e) => {
         if (e.detail) {
           newBirth({
             mother: e.detail.mother,
-            father: e.detail.candidates[0].id,
-            x:
-              Math.floor(
-                e.detail.position.x + e.detail.candidates[0].offsetLeft
-              ) / 2,
-            y:
-              Math.floor(
-                e.detail.position.y + e.detail.candidates[0].offsetTop
-              ) / 2,
-            positionM: e.detail.position,
-            positionF: {
-              x: e.detail.candidates[0].offsetLeft,
-              y: e.detail.candidates[0].offsetTop,
-            },
+            father: e.detail.father
           });
         }
       };
@@ -98,132 +228,74 @@ const Earth = () => {
     }
   }, [earthRef, earthRef.current]);
 
-  function addNewCreature(props) {
-    const creaturesTemp = creaturesRef.current;
-    creaturesTemp.push({
-      uid: uuidv4(),
-      birth: Date.now(),
-      x: props ? props.x : null,
-      y: props ? props.y : null,
-    });
-    setCreatures([...creaturesTemp]);
-    creaturesRef.current = creaturesTemp;
-  }
-
-  function removeCreatureByUid(uid) {
-    const creaturesTemp = creaturesRef.current;
-    for (var i = 0; i < creaturesTemp.length; i++) {
-      if (creaturesTemp[i].uid.localeCompare(uid) === 0) {
-        creaturesTemp.splice(i, 1);
-        setCreatures([...creaturesTemp]);
-        creaturesRef.current = creaturesTemp;
-        break;
-      }
-    }
-  }
-
-  function removeRandom() {
-    const creaturesTemp = creaturesRef.current;
-    creaturesTemp.splice(
-      Math.floor(Math.random() * creaturesRef.current.length),
-      1
-    );
-    setCreatures([...creaturesTemp]);
-    creaturesRef.current = creaturesTemp;
-  }
-
-  function InitializeCreatures() {
-    creaturesRef.current = [];
-    for (var i = 0; i < 20; i++) {
-      addNewCreature();
-    }
-  }
-  useEffect(() => {
-    if (restarted) {
-      InitializeCreatures();
-    }
-  }, [restarted]);
-
-  useEffect(() => {
-    if (earthRef && earthRef.current && !earthDimensions) {
-      setEarthDimensions({
-        top: earthRef.current.offsetTop,
-        left: earthRef.current.offsetLeft,
-        w: earthRef.current.offsetWidth,
-        h: earthRef.current.offsetHeight,
-      });
-    }
-  }, [earthRef]);
-
-  
   
 
   
-  function handleEarthMouseDown(e) {
-    e.preventDefault();
-    if (isStatsVisible && e.clientX>320) {
-      setIsStatsVisible(false);
-    }
-    if (!mouseOnStats && !isStatsVisible) {
-      if (e.button === 0) {
-        if(calamityType.localeCompare("none")!==0&&calamities.length<5){
-          
-          setCalamityPosition({
-            x: e.clientX - earthDimensions.left,
-            y: e.clientY - earthDimensions.top,
-          });
-        }
-      } else {
-        removeRandom();
-      }
-    }
-  }
+
+  
   return (
     <div
       id="earth"
       ref={earthRef}
       style={{
-        backgroundColor: "#222222",
+        backgroundColor: "#2A2A2A",
         height: "100%",
-        width: "100%",
+        width: window.innerWidth - 300,
         overflow: "hidden",
+        position: "relative",
       }}
-      onMouseDown={handleEarthMouseDown}
+      onMouseDown={handleLeftClick}
     >
-      {calamities?calamities.map((calamity)=>{
-        if(calamity.type.localeCompare("earthQuake")===0){
-          return (
-            <EarthQuake
-              key={`${calamity.id}+calamity`}
-              size={calamity.size}
-              amplitude={calamity.amplitude}
-              duration={calamity.duration}
-              position={calamity.position}
-            />
-          );
-        }
-        else if (calamity.type.localeCompare("volcano") === 0) {
-          return (
-            <Volcano
-              key={`${calamity.id}+calamity`}
-              size={calamity.size}
-              amplitude={calamity.amplitude}
-              duration={calamity.duration}
-              position={calamity.position}
-            />
-          );
-        } else if (calamity.type.localeCompare("radiation") === 0) {
-          return (
-            <Radiation
-              key={`${calamity.id}+calamity`}
-              size={calamity.size}
-              amplitude={calamity.amplitude}
-              duration={calamity.duration}
-              position={calamity.position}
-            />
-          );
-        }
-      }):null}
+      {resources
+        ? resources.map((resource) => {
+          if(resource.type.localeCompare("waterBody")===0){
+            return (
+              <WaterBody
+                key={`${resource.id}+resource`}
+                uid={resource.id}
+                size={resource.size}
+                position={resource.position}
+              ></WaterBody>
+            );
+          }
+            
+          })
+        : null}
+      {calamities
+        ? calamities.map((calamity) => {
+            if (calamity.type.localeCompare("earthQuake") === 0) {
+              return (
+                <EarthQuake
+                  key={`${calamity.id}+calamity`}
+                  size={calamity.size}
+                  amplitude={calamity.amplitude}
+                  duration={calamity.duration}
+                  position={calamity.position}
+                />
+              );
+            } else if (calamity.type.localeCompare("volcano") === 0) {
+              return (
+                <Volcano
+                  key={`${calamity.id}+calamity`}
+                  size={calamity.size}
+                  amplitude={calamity.amplitude}
+                  duration={calamity.duration}
+                  position={calamity.position}
+                />
+              );
+            } else if (calamity.type.localeCompare("radiation") === 0) {
+              return (
+                <Radiation
+                  key={`${calamity.id}+calamity`}
+                  size={calamity.size}
+                  amplitude={calamity.amplitude}
+                  duration={calamity.duration}
+                  position={calamity.position}
+                />
+              );
+            }
+          })
+        : null}
       {earthRef && earthDimensions
         ? creatures.map((creature) => {
             return (
@@ -235,37 +307,11 @@ const Earth = () => {
                 dim={earthDimensions}
                 x={creature.x}
                 y={creature.y}
+                size={creature.size}
               ></Creature>
             );
           })
         : null}
-      {isStatsVisible === false ? (
-        <IconButton
-          onMouseEnter={(e) => {
-            e.preventDefault();
-            setMouseOnStats(true);
-          }}
-          onMouseLeave={(e) => {
-            e.preventDefault();
-            setMouseOnStats(false);
-          }}
-          style={{ position: "absolute", top: 5, left: 5 }}
-          onClick={(e) => {
-            e.preventDefault();
-            setIsStatsVisible(true);
-          }}
-        >
-          <DehazeIcon style={{ color: "white" }}></DehazeIcon>
-        </IconButton>
-      ) : (
-        <Statisitcs
-          closeStats={() => {
-            setIsStatsVisible(false);
-            setMouseOnStats(false);
-          }}
-          style={{ position: "absolute", top: 5, left: 5 }}
-        ></Statisitcs>
-      )}
     </div>
   );
 };

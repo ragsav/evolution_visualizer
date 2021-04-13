@@ -10,7 +10,7 @@ const GlobalContextProvider = ({ children }) => {
   const [speed, setSpeed] = useState(1);
   // const [calamity, setCalamity] = useState("radiation");
 
-  const [calamityType, setCalamityType] = useState("radiation");
+  const [calamityType, setCalamityType] = useState("none");
   const [calamityPosition, setCalamityPosition] = useState(null);
   const [calamityDuration, setCalamityDuration] = useState(10000);
   const [calamitySize, setCalamitySize] = useState(100);
@@ -18,26 +18,36 @@ const GlobalContextProvider = ({ children }) => {
   const [calamities, setCalamities] = useState([]);
 
   const calamitiesOrg = useRef([]);
+
+
+
+
+  
+  const [resourcePosition, setResourcePosition] = useState(null);
+  const [resourceType,setResourceType] = useState("none");
+  const [resourceSize,setResourceSize] = useState(70);
+  const [resources, setResources] = useState([]);
+  const resourcesOrg = useRef([]);
   
 
 
-  const [earthQuakePosition, setEarthQuakePosition] = useState(null);
-  const [earthQuakeDuration, setEarthQuakeDuration] = useState(10000);
-  const [earthQuakeAmplitude, setEarthQuakeAmplitude] = useState(4);
-  const [earthQuakeRadius, setEarthQuakeRadius] = useState(100);
+  
+  
 
-  const [volcanoPosition, setVolcanoPosition] = useState(null);
-  const [volcanoDuration, setVolcanoDuration] = useState(10000);
-  const [volcanoSize, setVolcanoSize] = useState(100);
+  function addResource() {
+    const uid = uuidv4();
+    const resource = {
+      id: uid,
+      type:resourceType,
+      position: resourcePosition,
+      size:resourceSize
+    };
 
-  const [radiationPosition, setRadiationPosition] = useState(null);
-  const [radiationDuration, setRadiationDuration] = useState(10000);
-  const [radiationAmplitude, setRadiationAmplitude] = useState(4);
-  const [radiationRadius, setRadiationRadius] = useState(100);
-  // useEffect(() => {
-  //   console.log(volcanoPosition);
-  // }, [volcanoPosition]);
-
+    const resourcesTemp = resourcesOrg.current;
+    resourcesTemp.push(resource);
+    resourcesOrg.current = resourcesTemp;
+    setResources([...resourcesTemp]);
+  }
 
   function addCalamity()  {
     const uid = uuidv4();
@@ -58,6 +68,22 @@ const GlobalContextProvider = ({ children }) => {
     return uid;
   }
 
+  function removeResourceById(id){
+    const resourcesTemp = resourcesOrg.current;
+    const l = resourcesTemp.length;
+    for (var i = 0; i < l; i++) {
+      if (resourcesTemp[i].id.localeCompare(id) === 0) {
+        resourcesTemp.splice(i, 1);
+        break;
+      }
+    }
+    resourcesOrg.current = resourcesTemp;
+    if (resourcesTemp.length === 0) {
+      setResourcePosition(null);
+    }
+    setResources([...resourcesTemp]);
+  }
+
   function removeCalamityById(id){
     const calamitiesTemp = calamitiesOrg.current
     const l = calamitiesTemp.length;
@@ -75,8 +101,15 @@ const GlobalContextProvider = ({ children }) => {
     
   }
 
+  
+
   useEffect(() => {
-    
+    if (resourcesOrg.current.length < 5 && resourcePosition) {
+      addResource();
+    }
+  }, [resourcePosition]);
+
+  useEffect(() => {
     if (calamitiesOrg.current.length < 5 && calamityPosition) {
       const newUid = addCalamity();
      
@@ -88,18 +121,15 @@ const GlobalContextProvider = ({ children }) => {
           clearInterval(interval);
         };
       }
-
-      
-      
     }
   }, [calamityPosition]);
+
   return (
     <GlobalStateContext.Provider
       value={{
         status,
         speed,
         restarted,
-        
 
         calamityType,
         calamityAmplitude,
@@ -107,6 +137,10 @@ const GlobalContextProvider = ({ children }) => {
         calamityPosition,
         calamitySize,
         calamities,
+        resourcePosition,
+        resources,
+        resourceType,
+        resourceSize,
       }}
     >
       <GlobalActionsContext.Provider
@@ -114,14 +148,15 @@ const GlobalContextProvider = ({ children }) => {
           setStatus,
           setSpeed,
           setRestart,
-          
-
           setCalamityType,
           setCalamityAmplitude,
           setCalamityDuration,
           setCalamityPosition,
           setCalamitySize,
-          
+          removeResourceById,
+          setResourcePosition,
+          setResourceType,
+          setResourceSize,
         }}
       >
         {children}

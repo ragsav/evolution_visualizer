@@ -30,20 +30,26 @@ const isPairEqual = (a1, b1, a2, b2) => {
 };
 
 const Earth = () => {
-  const { restarted, calamityType, calamities, resources,resourceType } = useGlobalState();
-  const { setCalamityPosition, setResourcePosition } = useGlobalActions();
+  const {
+    restarted,
+    calamityType,
+    calamities,
+    resources,
+    resourceType,
+    initialPopulation,
+  } = useGlobalState();
+  const { setCalamityPosition, setResourcePosition,setTotalPopulation } = useGlobalActions();
   const [creatures, setCreatures] = useState([]);
-  const [contextMenuPosition,setContextMenuPosition] = useState(null);
+  const [contextMenuPosition, setContextMenuPosition] = useState(null);
   const [earthDimensions, setEarthDimensions] = useState(null);
   const earthRef = createRef();
   const creaturesRef = useRef([]);
   const birthCache = useRef([]);
 
-
   //initial population of creatures
-  function InitializeCreatures() {
+  function InitializeCreatures(initialPopulation) {
     creaturesRef.current = [];
-    for (var i = 0; i < 20; i++) {
+    for (var i = 0; i < initialPopulation; i++) {
       addNewCreature();
     }
   }
@@ -51,13 +57,15 @@ const Earth = () => {
   //add new creature to creaturesRef
   function addNewCreature(props) {
     const creaturesTemp = creaturesRef.current;
-    const uid = uuidv4()
+    const gender = Math.random()>0.5?"M":"F";
+    const uid = `${gender}-${uuidv4()}`;
     creaturesTemp.push({
       uid: uid,
       birth: Date.now(),
       x: props?.x,
       y: props?.y,
-      size:props?.size
+      size: props?.size,
+      gender:gender
     });
     setCreatures([...creaturesTemp]);
     creaturesRef.current = creaturesTemp;
@@ -89,7 +97,7 @@ const Earth = () => {
   }
 
   //handle new births wheather the parents have mate recently or not
-  function newBirth({mother,father}) {
+  function newBirth({ mother, father }) {
     const birthCacheTemp = birthCache.current;
     const l = birthCacheTemp.length;
 
@@ -115,7 +123,7 @@ const Earth = () => {
         y: (mother.position.y + father.position.y) / 2,
         size: (mother.size + father.size) / 2,
       });
-      birthCacheTemp.push({mother,father});
+      birthCacheTemp.push({ mother, father });
     }
     if (birthCacheTemp.length > 100) {
       birthCacheTemp.shift();
@@ -141,30 +149,24 @@ const Earth = () => {
         resources.length < 5 &&
         calamityType.localeCompare("none") === 0
       ) {
-        
         setResourcePosition({
           x: e.clientX - earthDimensions.left,
           y: e.clientY - earthDimensions.top,
         });
       }
-    }else if (e.button===2){
+    } else if (e.button === 2) {
       handleRightClick(e);
     }
   }
 
   //handle right click
-  function handleRightClick(e){
+  function handleRightClick(e) {
     e.preventDefault();
     setContextMenuPosition({
       x: e.clientX - earthDimensions.left,
       y: e.clientY - earthDimensions.top,
     });
-  };
-
-  
-
-
-  
+  }
 
   //set dimensions of earth when reference is available
   useEffect(() => {
@@ -175,10 +177,9 @@ const Earth = () => {
         w: earthRef.current.offsetWidth,
         h: earthRef.current.offsetHeight,
       });
-      console.log(earthDimensions)
+      console.log(earthDimensions);
     }
   }, [earthRef]);
-
 
   //adding contectmenu listener to hide contect menu on right click
   useEffect(() => {
@@ -193,15 +194,12 @@ const Earth = () => {
     }
   }, [earthRef]);
 
-
   //restart effect
   useEffect(() => {
     if (restarted) {
-      InitializeCreatures();
+      InitializeCreatures(initialPopulation);
     }
-  }, [restarted]);
-
-
+  }, [restarted,  initialPopulation]);
 
   //add birth and death event handlers when earth reference is available
   useEffect(() => {
@@ -210,7 +208,7 @@ const Earth = () => {
         if (e.detail) {
           newBirth({
             mother: e.detail.mother,
-            father: e.detail.father
+            father: e.detail.father,
           });
         }
       };
@@ -228,11 +226,13 @@ const Earth = () => {
     }
   }, [earthRef, earthRef.current]);
 
-  
 
-  
+  //save population size in global state
+  useEffect(()=>{
+    setTotalPopulation(creatures.length);
+  },[creatures])
 
-  
+
   return (
     <div
       id="earth"
@@ -248,17 +248,16 @@ const Earth = () => {
     >
       {resources
         ? resources.map((resource) => {
-          if(resource.type.localeCompare("waterBody")===0){
-            return (
-              <WaterBody
-                key={`${resource.id}+resource`}
-                uid={resource.id}
-                size={resource.size}
-                position={resource.position}
-              ></WaterBody>
-            );
-          }
-            
+            if (resource.type.localeCompare("waterBody") === 0) {
+              return (
+                <WaterBody
+                  key={`${resource.id}+resource`}
+                  uid={resource.id}
+                  size={resource.size}
+                  position={resource.position}
+                ></WaterBody>
+              );
+            }
           })
         : null}
       {calamities
@@ -308,6 +307,7 @@ const Earth = () => {
                 x={creature.x}
                 y={creature.y}
                 size={creature.size}
+                gender={creature.gender}
               ></Creature>
             );
           })

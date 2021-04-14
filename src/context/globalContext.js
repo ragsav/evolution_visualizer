@@ -5,9 +5,13 @@ const GlobalStateContext = React.createContext(undefined);
 const GlobalActionsContext = React.createContext(undefined);
 
 const GlobalContextProvider = ({ children }) => {
+  const chartDataOrg = useRef([]);
+  const [chartData, setChartData] = useState(null);
+  const [initialPopulation, setInitialPopulation] = useState(20);
   const [status, setStatus] = useState("Paused");
   const [restarted, setRestart] = useState(true);
   const [speed, setSpeed] = useState(1);
+  const [totalPopulation, setTotalPopulation] = useState(20);
   // const [calamity, setCalamity] = useState("radiation");
 
   const [calamityType, setCalamityType] = useState("none");
@@ -112,7 +116,7 @@ const GlobalContextProvider = ({ children }) => {
   useEffect(() => {
     if (calamitiesOrg.current.length < 5 && calamityPosition) {
       const newUid = addCalamity();
-     
+
       const interval = setInterval(() => {
         removeCalamityById(newUid);
       }, [calamityDuration]);
@@ -124,13 +128,27 @@ const GlobalContextProvider = ({ children }) => {
     }
   }, [calamityPosition]);
 
+  useEffect(() => {
+    chartDataOrg.current.push({
+      time: Date.now(),
+      population: totalPopulation,
+    });
+  }, [totalPopulation]);
+
+  useEffect(() => {
+    if (restarted) {
+      setChartData(chartDataOrg.current);
+    }
+  }, [restarted]);
+
   return (
     <GlobalStateContext.Provider
       value={{
+        initialPopulation,
         status,
         speed,
         restarted,
-
+        totalPopulation,
         calamityType,
         calamityAmplitude,
         calamityDuration,
@@ -141,13 +159,16 @@ const GlobalContextProvider = ({ children }) => {
         resources,
         resourceType,
         resourceSize,
+        chartData,
       }}
     >
       <GlobalActionsContext.Provider
         value={{
+          setInitialPopulation,
           setStatus,
           setSpeed,
           setRestart,
+          setTotalPopulation,
           setCalamityType,
           setCalamityAmplitude,
           setCalamityDuration,

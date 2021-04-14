@@ -7,17 +7,18 @@ import { GlobalContextProvider } from './context/globalContext';
 import Earth from "./components/screen";
 import Statisitcs from "./components/statistics"
 import { Row } from 'react-bootstrap';
+import { ThemeProvider } from "./context/themeContext";
 function App() {
   return (
     <div className="App">
-      <GlobalContextProvider>
-        <Statisitcs
-          
-          
-          style={{ position: "absolute", top: 5, left: 5 }}
-        ></Statisitcs>
-        <Earth></Earth>
-      </GlobalContextProvider>
+      <ThemeProvider>
+        <GlobalContextProvider>
+          <Statisitcs
+            style={{ position: "absolute", top: 5, left: 5 }}
+          ></Statisitcs>
+          <Earth></Earth>
+        </GlobalContextProvider>
+      </ThemeProvider>
     </div>
   );
 }

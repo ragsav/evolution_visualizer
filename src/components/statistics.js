@@ -1,16 +1,11 @@
-import { Row, Card, Col, ButtonGroup, InputGroup } from "react-bootstrap";
+import { Row, Card, ButtonGroup } from "react-bootstrap";
 import Slider from "@material-ui/core/Slider";
-import Typography from "@material-ui/core/Typography";
 import Tooltip from "@material-ui/core/Tooltip";
 import { useGlobalActions, useGlobalState } from "../context/globalContext";
+import { useThemeState } from "../context/themeContext";
 import { Button } from "react-bootstrap";
-import ModalHeader from "react-bootstrap/esm/ModalHeader";
-import IconButton from "@material-ui/core/IconButton";
-// import Cross from "@material-ui/icons/Dehaze";
-import ClearIcon from "@material-ui/icons/Clear";
 import {
   Divider,
-  TextField,
   FormControl,
   InputLabel,
   MenuItem,
@@ -30,6 +25,7 @@ function ValueLabelComponent(props) {
 
 const Statisitcs = (props) => {
   const {
+    setInitialPopulation,
     setStatus,
     setSpeed,
     setRestart,
@@ -38,39 +34,41 @@ const Statisitcs = (props) => {
     setCalamityDuration,
     setCalamitySize,
     setResourceType,
-    setResourceSize
+    setResourceSize,
   } = useGlobalActions();
   const {
+    initialPopulation,
     status,
     speed,
     restarted,
+    totalPopulation,
     calamityType,
     calamityAmplitude,
     calamityDuration,
     calamitySize,
     resourceType,
-    resourceSize
+    resourceSize,
   } = useGlobalState();
+
+  const { theme } = useThemeState();
 
   return (
     <Card
       style={{
         padding: 4,
-
         borderRadius: 0,
-
         width: 300,
-        // zIndex: 10,
-
         overflowY: "scroll",
         height: "100%",
+        minWidth: 300,
         border: "none",
+        backgroundColor: theme.optionsColor,
       }}
     >
       <Row style={{ margin: 0, padding: 4 }}>
         <ButtonGroup>
           <Button
-            variant="dark"
+            variant={theme.buttonTheme}
             style={{
               padding: "2px 8px 2px 8px",
               boxShadow: "none",
@@ -87,13 +85,11 @@ const Statisitcs = (props) => {
             {status.localeCompare("Playing") === 0 ? "Pause" : "Play"}
           </Button>
           <Button
-            //   disabled={status.localeCompare("Finished") === 0}
             disabled={restarted}
-            variant="dark"
+            variant={theme.buttonTheme}
             style={{
               padding: "2px 8px 2px 8px",
               boxShadow: "none",
-
               fontSize: 12,
             }}
             onClick={(e) => {
@@ -105,9 +101,10 @@ const Statisitcs = (props) => {
             Stop
           </Button>
         </ButtonGroup>
+        <span style={{fontWeight:"600",fontSize:12,padding:2,margin:2}}>{`Total Population : ${totalPopulation}`}</span>
       </Row>
 
-      <Divider></Divider>
+      <Divider style={{ backgroundColor: theme.optionsBorderColor }}></Divider>
 
       <Row style={{ margin: 0, padding: 4 }}>
         <Grid container spacing={2} style={{ padding: 0, margin: 0 }}>
@@ -120,6 +117,51 @@ const Statisitcs = (props) => {
               fontSize: 12,
               fontWeight: "500",
               textAlign: "start",
+              color: theme.optionsFontColor,
+            }}
+          >
+            Initial Population
+          </Grid>
+          <Grid
+            item
+            xs={6}
+            style={{
+              padding: "4px 16px 4px 16px",
+              margin: 0,
+              fontSize: 10,
+              fontWeight: "500",
+            }}
+          >
+            <Slider
+              style={{ boxShadow: "none", color: theme.optionsFontColor }}
+              style={{ padding: 0 }}
+              ValueLabelComponent={ValueLabelComponent}
+              value={initialPopulation}
+              min={1}
+              max={200}
+              onChange={(e, v) => {
+                e.preventDefault();
+                setInitialPopulation(v);
+              }}
+            />
+          </Grid>
+        </Grid>
+      </Row>
+
+      <Divider style={{ backgroundColor: theme.optionsBorderColor }}></Divider>
+
+      <Row style={{ margin: 0, padding: 4 }}>
+        <Grid container spacing={2} style={{ padding: 0, margin: 0 }}>
+          <Grid
+            item
+            xs={6}
+            style={{
+              padding: 4,
+              margin: 0,
+              fontSize: 12,
+              fontWeight: "500",
+              textAlign: "start",
+              color: theme.optionsFontColor,
             }}
           >
             Creature speed
@@ -135,7 +177,7 @@ const Statisitcs = (props) => {
             }}
           >
             <Slider
-              style={{ boxShadow: "none" }}
+              style={{ boxShadow: "none", color: theme.optionsFontColor }}
               style={{ padding: 0 }}
               ValueLabelComponent={ValueLabelComponent}
               value={speed}
@@ -150,19 +192,25 @@ const Statisitcs = (props) => {
         </Grid>
       </Row>
 
-      <div style={{ borderRadius: 4, border: "1px solid #858585", padding: 2 ,margin:2}}>
+      <div
+        style={{
+          borderRadius: 4,
+          border: `1px solid ${theme.optionsBorderColor}`,
+          padding: 2,
+          margin: 2,
+        }}
+      >
         <Row style={{ margin: 0, padding: "8px 4px 4px 4px" }}>
           <FormControl
-            variant="outlined"
-            style={{ width: "100%", padding: 0 }}
+            // variant="outlined"
+            style={{
+              width: "100%",
+              padding: 0,
+              borderColor: theme.optionsBorderColor,
+            }}
             size="small"
           >
-            <InputLabel id="calamity-selector-label" style={{}}>
-              Calamity
-            </InputLabel>
             <Select
-              label="Calamity"
-              labelId="calamity-selector-label"
               value={calamityType}
               onChange={(e) => {
                 e.preventDefault();
@@ -172,8 +220,11 @@ const Statisitcs = (props) => {
               style={{
                 padding: 0,
                 margin: 0,
-                fontSize: 14,
-                fontWeight: "500",
+                fontSize: 12,
+                fontWeight: "600",
+                borderRadius: 4,
+                color: theme.optionsFontColor,
+                border: `1px solid ${theme.optionsBorderColor}`,
               }}
             >
               <MenuItem
@@ -182,7 +233,8 @@ const Statisitcs = (props) => {
                   padding: 4,
                   margin: 0,
                   fontSize: 12,
-                  fontWeight: "500",
+                  fontWeight: "600",
+                  color: theme.optionsFontColor,
                 }}
               >
                 None
@@ -193,7 +245,8 @@ const Statisitcs = (props) => {
                   padding: 4,
                   margin: 0,
                   fontSize: 12,
-                  fontWeight: "500",
+                  fontWeight: "600",
+                  color: theme.optionsFontColor,
                 }}
               >
                 Radiation
@@ -204,7 +257,8 @@ const Statisitcs = (props) => {
                   padding: 4,
                   margin: 0,
                   fontSize: 12,
-                  fontWeight: "500",
+                  fontWeight: "600",
+                  color: theme.optionsFontColor,
                 }}
               >
                 Earth Quake
@@ -215,7 +269,8 @@ const Statisitcs = (props) => {
                   padding: 4,
                   margin: 0,
                   fontSize: 12,
-                  fontWeight: "500",
+                  fontWeight: "600",
+                  color: theme.optionsFontColor,
                 }}
               >
                 Volcano
@@ -235,6 +290,7 @@ const Statisitcs = (props) => {
                 fontSize: 12,
                 fontWeight: "500",
                 textAlign: "start",
+                color: theme.optionsFontColor,
               }}
             >
               Calamity size
@@ -250,7 +306,10 @@ const Statisitcs = (props) => {
               }}
             >
               <Slider
-                style={{ boxShadow: "none" }}
+                style={{
+                  boxShadow: "none",
+                  color: theme.optionsFontColor,
+                }}
                 style={{ padding: 0 }}
                 ValueLabelComponent={ValueLabelComponent}
                 value={calamitySize}
@@ -266,7 +325,7 @@ const Statisitcs = (props) => {
           </Grid>
         </Row>
 
-        <Divider></Divider>
+        
 
         <Row style={{ margin: 0, padding: 4 }}>
           <Grid container spacing={2} style={{ padding: 0, margin: 0 }}>
@@ -279,6 +338,7 @@ const Statisitcs = (props) => {
                 fontSize: 12,
                 fontWeight: "500",
                 textAlign: "start",
+                color: theme.optionsFontColor,
               }}
             >
               Calamity amplitude
@@ -294,7 +354,10 @@ const Statisitcs = (props) => {
               }}
             >
               <Slider
-                style={{ boxShadow: "none" }}
+                style={{
+                  boxShadow: "none",
+                  color: theme.optionsFontColor,
+                }}
                 style={{ padding: 0 }}
                 ValueLabelComponent={ValueLabelComponent}
                 value={calamityAmplitude}
@@ -310,7 +373,7 @@ const Statisitcs = (props) => {
           </Grid>
         </Row>
 
-        <Divider></Divider>
+        
 
         <Row style={{ margin: 0, padding: 4 }}>
           <Grid container spacing={2} style={{ padding: 0, margin: 0 }}>
@@ -323,6 +386,7 @@ const Statisitcs = (props) => {
                 fontSize: 12,
                 fontWeight: "500",
                 textAlign: "start",
+                color: theme.optionsFontColor,
               }}
             >
               Calamity duration
@@ -338,7 +402,10 @@ const Statisitcs = (props) => {
               }}
             >
               <Slider
-                style={{ boxShadow: "none" }}
+                style={{
+                  boxShadow: "none",
+                  color: theme.optionsFontColor,
+                }}
                 style={{ padding: 0 }}
                 ValueLabelComponent={ValueLabelComponent}
                 value={calamityDuration}
@@ -355,19 +422,21 @@ const Statisitcs = (props) => {
         </Row>
       </div>
 
-      <div style={{ borderRadius: 4, border: "1px solid #858585", padding: 2 ,margin:2}}>
+      <div
+        style={{
+          borderRadius: 4,
+          border: `1px solid ${theme.optionsBorderColor}`,
+          padding: 2,
+          margin: 2,
+        }}
+      >
         <Row style={{ margin: 0, padding: "8px 4px 4px 4px" }}>
           <FormControl
-            variant="outlined"
+            
             style={{ width: "100%", padding: 0 }}
             size="small"
           >
-            <InputLabel id="resources-selector-label" style={{}}>
-              Resources
-            </InputLabel>
             <Select
-              label="Resources"
-              labelId="resources-selector-label"
               value={resourceType}
               onChange={(e) => {
                 e.preventDefault();
@@ -377,8 +446,11 @@ const Statisitcs = (props) => {
               style={{
                 padding: 0,
                 margin: 0,
-                fontSize: 14,
-                fontWeight: "500",
+                fontSize: 12,
+                fontWeight: "600",
+                borderRadius: 4,
+                color: theme.optionsFontColor,
+                border: `1px solid ${theme.optionsBorderColor}`,
               }}
             >
               <MenuItem
@@ -387,22 +459,25 @@ const Statisitcs = (props) => {
                   padding: 4,
                   margin: 0,
                   fontSize: 12,
-                  fontWeight: "500",
+                  fontWeight: "600",
+                  color: theme.optionsFontColor,
                 }}
               >
                 None
               </MenuItem>
+
               <MenuItem
                 value="waterBody"
                 style={{
                   padding: 4,
                   margin: 0,
                   fontSize: 12,
-                  fontWeight: "500",
+                  fontWeight: "600",
+                  color: theme.optionsFontColor,
                 }}
               >
                 Water body
-              </MenuItem>              
+              </MenuItem>
             </Select>
           </FormControl>
         </Row>
@@ -418,6 +493,7 @@ const Statisitcs = (props) => {
                 fontSize: 12,
                 fontWeight: "500",
                 textAlign: "start",
+                color: theme.optionsFontColor,
               }}
             >
               Resource size
@@ -433,7 +509,7 @@ const Statisitcs = (props) => {
               }}
             >
               <Slider
-                style={{ boxShadow: "none" }}
+                style={{ boxShadow: "none", color: theme.optionsFontColor }}
                 style={{ padding: 0 }}
                 ValueLabelComponent={ValueLabelComponent}
                 value={resourceSize}
@@ -449,7 +525,7 @@ const Statisitcs = (props) => {
           </Grid>
         </Row>
 
-        <Divider></Divider>
+        
       </div>
     </Card>
   );

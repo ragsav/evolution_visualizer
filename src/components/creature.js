@@ -6,11 +6,15 @@ import { useGlobalActions, useGlobalState } from "../context/globalContext";
 
 
 const Creature = (props) => {
-  const { status, speed, calamities, resources } = useGlobalState();
+  const { status, speed, calamities, resources ,totalPopulation} = useGlobalState();
   const creatureRef = useRef(null);
   const size = useRef(props.size ? props.size : 6);
   const [color, setColor] = useState(
-    props.birth + 10000 > Date.now() ? "#FF4489" : "#E8FF95"
+    props.birth + 10000 > Date.now()
+      ? "#44FFE3"
+      : props.gender.localeCompare("M") === 0
+      ? "#E8FF95"
+      : "#FF4489"
   );
   const [className, setClassName] = useState(
     props.birth + 10000 > Date.now() ? "babyCreature" : "adultCreature"
@@ -24,7 +28,6 @@ const Creature = (props) => {
       : Math.floor((props.dim.h - 20) * Math.random() - size.current / 2 + 10),
   });
 
-
   function increaseSize() {
     size.current = 10;
   }
@@ -37,6 +40,12 @@ const Creature = (props) => {
     props.earthRef?.current?.dispatchEvent(event);
   }
 
+  function destroyNeighbour(neighbourUID) {
+    const event = new CustomEvent("death", {
+      detail: { uid: neighbourUID },
+    });
+    props.earthRef?.current?.dispatchEvent(event);
+  }
 
   //check if there is any calamity nearby
   function checkCalamity() {
@@ -56,7 +65,6 @@ const Creature = (props) => {
       }
     }
   }
-
 
   //check if there is any water body nearby
   function checkResources() {
@@ -82,23 +90,22 @@ const Creature = (props) => {
     }
   }
 
-
-  function changeColor(){
+  function changeColor() {
     if (
       props.birth + 10000 < Date.now() &&
-      color.localeCompare("#FF4489") === 0
+      color.localeCompare("#44FFE3") === 0
     )
-      setColor("#E8FF95");
+      setColor(props.gender.localeCompare("M") === 0 ? "#E8FF95" : "#FF4489");
   }
-  
-  function changeClassName(){
+
+  function changeClassName() {
     if (
       props.birth + 10000 < Date.now() &&
       className.localeCompare("babyCreature") === 0
     )
       setClassName("adultCreature");
   }
-  
+
   function canReproduce() {
     if (className.localeCompare("adultCreature") === 0) {
       return true;
@@ -107,7 +114,11 @@ const Creature = (props) => {
     }
   }
 
-
+  function checkIfOldEnoughToDie(){
+    if(Date.now()>props.birth+50000&&Math.random()>0.97){
+      selfDestroy();
+    }
+  }
   //change position randomly *update to tendency based position change*
   function changePosition() {
     const pos = [1, -1];
@@ -138,12 +149,11 @@ const Creature = (props) => {
     setPosition(newPosition);
   }
 
-
-
   //get all neighbouring adults
   function getNeighbourHood() {
-    const neighbourHood = {};
-    const neighbours = [];
+    
+    const maleNeighbours = [];
+    const femaleNeighbours = [];
     if (creatureRef?.current) {
       const children = creatureRef.current?.parentNode?.childNodes;
       if (children) {
@@ -154,13 +164,17 @@ const Creature = (props) => {
             Math.abs(children[key].offsetTop - position.y) < 10 &&
             children[key].id.localeCompare(props.uid) !== 0
           ) {
-            neighbours.push(children[key]);
+            if(children[key].id[0].localeCompare("F")===0){
+              femaleNeighbours.push(children[key]);
+            }else{
+               maleNeighbours.push(children[key]);
+            }
           }
         });
       }
     }
 
-    neighbourHood.neighbours = neighbours;
+    const neighbourHood = {maleNeighbours,femaleNeighbours};
     return neighbourHood;
   }
 
@@ -176,7 +190,6 @@ const Creature = (props) => {
       size: neighbour.clientWidth,
     };
 
-    
     const event = new CustomEvent("birth", {
       detail: { mother, father },
     });
@@ -184,37 +197,43 @@ const Creature = (props) => {
   }
 
   //regular activity function
-  function doActivities(){
+  function doActivities() {
+    checkIfOldEnoughToDie()
     checkCalamity();
     checkResources();
-    
+
     changePosition();
     changeColor();
     changeClassName();
-    
-    const { neighbours } = getNeighbourHood();
 
-    if (
-      canReproduce() &&
-      neighbours.length > 0
-    ) {
-      birthRequest(neighbours[0]);
+    const { maleNeighbours,femaleNeighbours } = getNeighbourHood();
+    if(props.uid[0].localeCompare("F")===0){
+      if(canReproduce()&&maleNeighbours.length>0){
+        birthRequest(maleNeighbours[0]);
+      }
+    }else{
+      if (maleNeighbours.length>0 && maleNeighbours[0].clientWidth < size.current){
+        destroyNeighbour(maleNeighbours[0].id);
+      }
     }
-  }
 
+    
+  }
 
   useEffect(() => {
     if (status.localeCompare("Playing") === 0) {
       const interval = setInterval(() => {
         doActivities();
       }, Math.floor(Math.random() * 500) + 10);
+
+      
       return () => {
         clearInterval(interval);
       };
     }
   }, [position, status, speed]);
 
-
+  
   return (
     <div
       className={className}
@@ -230,9 +249,9 @@ const Creature = (props) => {
         left: position.x,
         transition: "all 0.5s ease-in-out",
         WebkitBoxShadow:
-          props.birth + 10000 > Date.now() ? "0 0 10px #FF4489" : "none",
+          props.birth + 10000 > Date.now() ? "0 0 10px #44FFE3" : "none",
         boxShadow:
-          props.birth + 10000 > Date.now() ? "0 0 10px #FF4489" : "none",
+          props.birth + 10000 > Date.now() ? "0 0 10px #44FFE3" : "none",
       }}
     ></div>
   );

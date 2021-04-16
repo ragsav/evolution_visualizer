@@ -58,7 +58,7 @@ const Statisitcs = (props) => {
         padding: 4,
         borderRadius: 0,
         width: 300,
-        overflowY: "scroll",
+        // overflowY: "scroll",
         height: "100%",
         minWidth: 300,
         border: "none",
@@ -101,7 +101,9 @@ const Statisitcs = (props) => {
             Stop
           </Button>
         </ButtonGroup>
-        <span style={{fontWeight:"600",fontSize:12,padding:2,margin:2}}>{`Total Population : ${totalPopulation}`}</span>
+        <span
+          style={{ fontWeight: "600", fontSize: 12, padding: 2, margin: 2 }}
+        >{`Total Population : ${totalPopulation}`}</span>
       </Row>
 
       <Divider style={{ backgroundColor: theme.optionsBorderColor }}></Divider>
@@ -325,8 +327,6 @@ const Statisitcs = (props) => {
           </Grid>
         </Row>
 
-        
-
         <Row style={{ margin: 0, padding: 4 }}>
           <Grid container spacing={2} style={{ padding: 0, margin: 0 }}>
             <Grid
@@ -372,8 +372,6 @@ const Statisitcs = (props) => {
             </Grid>
           </Grid>
         </Row>
-
-        
 
         <Row style={{ margin: 0, padding: 4 }}>
           <Grid container spacing={2} style={{ padding: 0, margin: 0 }}>
@@ -431,11 +429,7 @@ const Statisitcs = (props) => {
         }}
       >
         <Row style={{ margin: 0, padding: "8px 4px 4px 4px" }}>
-          <FormControl
-            
-            style={{ width: "100%", padding: 0 }}
-            size="small"
-          >
+          <FormControl style={{ width: "100%", padding: 0 }} size="small">
             <Select
               value={resourceType}
               onChange={(e) => {
@@ -524,8 +518,6 @@ const Statisitcs = (props) => {
             </Grid>
           </Grid>
         </Row>
-
-        
       </div>
     </Card>
   );

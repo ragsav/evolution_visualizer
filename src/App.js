@@ -19,6 +19,7 @@ function App() {
           <Earth></Earth>
         </GlobalContextProvider>
       </ThemeProvider>
+      {/* <Earth></Earth> */}
     </div>
   );
 }

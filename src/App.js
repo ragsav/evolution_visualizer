@@ -4,7 +4,8 @@ import Ripples from "react-ripples";
 import "bootstrap/dist/css/bootstrap.min.css";
 // import Screen from './components/screen';
 import { GlobalContextProvider } from './context/globalContext';
-import Earth from "./components/screen";
+// import Earth from "./components/screen";
+import Earth from "./components/experiments/earth"
 import Statisitcs from "./components/statistics"
 import { Row } from 'react-bootstrap';
 import { ThemeProvider } from "./context/themeContext";

@@ -58,7 +58,7 @@ const Statisitcs = (props) => {
         padding: 4,
         borderRadius: 0,
         width: 300,
-        // overflowY: "scroll",
+        overflowY: "scroll",
         height: "100%",
         minWidth: 300,
         border: "none",
@@ -183,8 +183,9 @@ const Statisitcs = (props) => {
               style={{ padding: 0 }}
               ValueLabelComponent={ValueLabelComponent}
               value={speed}
-              min={1}
-              max={100}
+              min={0}
+              step={0.1}
+              max={10}
               onChange={(e, v) => {
                 e.preventDefault();
                 setSpeed(v);
@@ -213,6 +214,7 @@ const Statisitcs = (props) => {
             size="small"
           >
             <Select
+              disableUnderline={true}
               value={calamityType}
               onChange={(e) => {
                 e.preventDefault();
@@ -431,6 +433,7 @@ const Statisitcs = (props) => {
         <Row style={{ margin: 0, padding: "8px 4px 4px 4px" }}>
           <FormControl style={{ width: "100%", padding: 0 }} size="small">
             <Select
+              disableUnderline={true}
               value={resourceType}
               onChange={(e) => {
                 e.preventDefault();

@@ -20,13 +20,14 @@ export class Creature {
     this.foodId = null;
     this.lastFoodTime = Date.now();
     this.canEatFood = false;
+    this.isInfected = false;
+    this.infectionTime = null;
     creatures.current.push(this);
   }
 
   updateToAdult() {
     if (this.birth + 10000 < Date.now()) {
       this.isAdult = true;
-      this.color = this.gender == "F" ? "#FF75BF" : "#2ED9FF";
     }
   }
   updateAbleToMate() {
@@ -75,6 +76,29 @@ export class Creature {
     return this.lastFoodTime + 20000 + Math.random() * 5000 < Date.now();
   }
 
+  infect() {
+    if (!this.isInfected) {
+      this.isInfected = true;
+      this.infectionTime = Date.now();
+    }
+  }
+
+  disInfect() {
+    if (this.isInfected && this.infectionTime + 10000 < Date.now()) {
+      this.isInfected = false;
+      this.infectionTime = null;
+    }
+  }
+
+  updateColor() {
+    if (this.isInfected) {
+      this.color = "#FF0000";
+    } else if (this.isAdult) {
+      this.color = this.gender == "F" ? "#FF75BF" : "#2ED9FF";
+    } else {
+      this.color = "#ffffff";
+    }
+  }
   drawBall(ctx) {
     ctx.beginPath();
     ctx.arc(this.pos.x, this.pos.y, this.r, 0, 2 * Math.PI);

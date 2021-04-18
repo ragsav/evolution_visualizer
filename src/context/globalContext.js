@@ -7,11 +7,11 @@ const GlobalActionsContext = React.createContext(undefined);
 const GlobalContextProvider = ({ children }) => {
   const chartDataOrg = useRef([]);
   const [chartData, setChartData] = useState(null);
-  const [initialPopulation, setInitialPopulation] = useState(20);
+  const [initialPopulation, setInitialPopulation] = useState(50);
   const [status, setStatus] = useState("Paused");
   const [restarted, setRestart] = useState(true);
-  const [speed, setSpeed] = useState(1);
-  const [totalPopulation, setTotalPopulation] = useState(20);
+  const [speed, setSpeed] = useState(0.5);
+  const [totalPopulation, setTotalPopulation] = useState(50);
   // const [calamity, setCalamity] = useState("radiation");
 
   const [calamityType, setCalamityType] = useState("none");

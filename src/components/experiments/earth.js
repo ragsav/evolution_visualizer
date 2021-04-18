@@ -193,6 +193,21 @@ function findFood(creatures,foods) {
   })
 }
 
+function infection(creatures) {
+  let n = creatures.current.length;
+  for (let i = 0; i < n; i++) {
+    const observer = creatures.current[i];
+    if (observer.isInfected) {
+      for (let j = i + 1; j < n; j++) {
+        const target = creatures.current[j];
+        if (observer.pos.subtr(target.pos).mag() < 7) {
+          target.infect();
+        }
+      }
+    }
+  }
+}
+
 function die(creatures){
   for(let i=0;i<creatures.current.length;i++){
     if(creatures.current[i].canDie()){
@@ -242,6 +257,7 @@ const Earth = () => {
       clearCanvas(ctx, canvasRef);
       initPopulation(initialPopulation,CREATURES);
       makeInitialFood(FOODS);
+      CREATURES.current[0].infect();
     }
   }, [ctx,restarted,initialPopulation]);
 
@@ -261,22 +277,24 @@ const Earth = () => {
   function mainLoop(timestamp) {
     if (localStatus.current.localeCompare("Playing") === 0) {
       clearCanvas(ctx, canvasRef);
+      findFood(CREATURES, FOODS);
       die(CREATURES);
+      infection(CREATURES);
       matingPool(CREATURES);
-      
+
       CREATURES.current.forEach((b, index) => {
-        
-        b.reposition(ctx,localSpeed.current);
+        b.reposition(ctx, localSpeed.current);
         b.updateToAdult();
         b.updateAbleToMate();
         b.updateCanEatFood();
+        // b.disInfect();
+        b.updateColor();
         b.drawBall(ctx);
       });
 
-      findFood(CREATURES, FOODS);
-      FOODS.current.forEach((f,index)=>{
+      FOODS.current.forEach((f, index) => {
         f.drawFood(ctx);
-      })
+      });
       addRandomNumberOfFood(FOODS);
       setTotalPopulation(CREATURES.current.length);
       requestAnimationFrame(mainLoop);
@@ -284,8 +302,21 @@ const Earth = () => {
     return ;
   }
 
+  function handleCanvasClick(e) {
+    console.log("clicked");
+    const mouse = new Vector(e.clientX, e.clientY);
+    console.log(mouse);
+    const n = CREATURES.current.length;
+    for (let i = 0; i < n; i++) {
+      const observer = CREATURES.current[i];
+      if (observer.pos.subtr(mouse).mag() < 10) {
+        observer.infect();
+      }
+    }
+  }
   return (
     <canvas
+      onClick={handleCanvasClick}
       tabIndex={1}
       id="canvas"
       ref={canvasRef}

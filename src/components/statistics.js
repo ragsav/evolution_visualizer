@@ -4,6 +4,9 @@ import Tooltip from "@material-ui/core/Tooltip";
 import { useGlobalActions, useGlobalState } from "../context/globalContext";
 import { useThemeState } from "../context/themeContext";
 import { Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
+import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
+
 import {
   Divider,
   FormControl,
@@ -55,7 +58,7 @@ const Statisitcs = (props) => {
   return (
     <Card
       style={{
-        padding: 4,
+        padding: 2,
         borderRadius: 0,
         width: 300,
         overflowY: "scroll",
@@ -65,6 +68,35 @@ const Statisitcs = (props) => {
         backgroundColor: theme.optionsColor,
       }}
     >
+      <Row
+        style={{
+          padding: 1,
+          margin: 2,
+          borderRadius: 4,
+          border: `2px solid ${theme.optionsBorderColor}`,
+          justifyContent: "left",
+          alignItems: "center",
+        }}
+        onClick={(e) => {
+          e.preventDefault();
+          window.open("http://localhost:3000/evolution_visualizer/docs", "_blank");
+        }}
+      >
+        <InfoOutlinedIcon style={{ padding: 0, margin: 0 }}></InfoOutlinedIcon>
+        <span
+          style={{
+            textDecoration:        "none",
+            fontSize: 12,
+            padding: "0px 8px 0px 8px",
+            fontWeight: "600",
+            color: "#FF8400",
+            userSelect: "none",
+          }}
+        >
+          Documentation
+        </span>
+      </Row>
+
       <Row style={{ margin: 0, padding: 4 }}>
         <ButtonGroup>
           <Button
@@ -106,7 +138,7 @@ const Statisitcs = (props) => {
         >{`Total Population : ${totalPopulation}`}</span>
       </Row>
 
-      <Divider style={{ backgroundColor: theme.optionsBorderColor }}></Divider>
+      {/* <Divider style={{ backgroundColor: theme.optionsBorderColor }}></Divider> */}
 
       <Row style={{ margin: 0, padding: 4 }}>
         <Grid container spacing={2} style={{ padding: 0, margin: 0 }}>
@@ -150,7 +182,7 @@ const Statisitcs = (props) => {
         </Grid>
       </Row>
 
-      <Divider style={{ backgroundColor: theme.optionsBorderColor }}></Divider>
+      {/* <Divider style={{ backgroundColor: theme.optionsBorderColor }}></Divider> */}
 
       <Row style={{ margin: 0, padding: 4 }}>
         <Grid container spacing={2} style={{ padding: 0, margin: 0 }}>
@@ -198,7 +230,7 @@ const Statisitcs = (props) => {
       <div
         style={{
           borderRadius: 4,
-          border: `1px solid ${theme.optionsBorderColor}`,
+          border: `2px solid ${theme.optionsBorderColor}`,
           padding: 2,
           margin: 2,
         }}
@@ -228,7 +260,7 @@ const Statisitcs = (props) => {
                 fontWeight: "600",
                 borderRadius: 4,
                 color: theme.optionsFontColor,
-                border: `1px solid ${theme.optionsBorderColor}`,
+                border: `2px solid ${theme.optionsBorderColor}`,
               }}
             >
               <MenuItem
@@ -425,7 +457,7 @@ const Statisitcs = (props) => {
       <div
         style={{
           borderRadius: 4,
-          border: `1px solid ${theme.optionsBorderColor}`,
+          border: `2px solid ${theme.optionsBorderColor}`,
           padding: 2,
           margin: 2,
         }}
@@ -447,7 +479,7 @@ const Statisitcs = (props) => {
                 fontWeight: "600",
                 borderRadius: 4,
                 color: theme.optionsFontColor,
-                border: `1px solid ${theme.optionsBorderColor}`,
+                border: `2px solid ${theme.optionsBorderColor}`,
               }}
             >
               <MenuItem

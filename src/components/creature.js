@@ -1,260 +1,202 @@
-import { createRef, useEffect, useRef, useState } from "react";
-import { useGlobalActions, useGlobalState } from "../context/globalContext";
-
-
-
-
-
-const Creature = (props) => {
-  const { status, speed, calamities, resources ,totalPopulation} = useGlobalState();
-  const creatureRef = useRef(null);
-  const size = useRef(props.size ? props.size : 6);
-  const [color, setColor] = useState(
-    props.birth + 10000 > Date.now()
-      ? "#44FFE3"
-      : props.gender.localeCompare("M") === 0
-      ? "#E8FF95"
-      : "#FF4489"
-  );
-  const [className, setClassName] = useState(
-    props.birth + 10000 > Date.now() ? "babyCreature" : "adultCreature"
-  );
-  const [position, setPosition] = useState({
-    x: props.x
-      ? props.x
-      : Math.floor((props.dim.w - 20) * Math.random() - size.current / 2 + 10),
-    y: props.y
-      ? props.y
-      : Math.floor((props.dim.h - 20) * Math.random() - size.current / 2 + 10),
-  });
-
-  function increaseSize() {
-    size.current = 10;
+import { Vector } from "./vector";
+import { v4 as uuidv4 } from "uuid";
+export class Creature {
+  constructor(x, y, r, gender, creatures) {
+    this.id = uuidv4();
+    this.pos = new Vector(x, y);
+    this.r = r;
+    this.orignalR = r;
+    this.gender = gender;
+    this.vel = new Vector(0, 0);
+    this.acc = new Vector(0, 0);
+    this.acceleration = 0;
+    this.birth = Date.now();
+    this.color = "#ffffff";
+    this.isAdult = false;
+    this.lastBirth = Date.now();
+    this.isAbleToMate = false;
+    this.isFoodFound = false;
+    this.foundFoodPosition = null;
+    this.foodId = null;
+    this.lastFoodTime = Date.now();
+    this.canEatFood = false;
+    this.isInfected = false;
+    this.infectionTime = null;
+    this.energy = 600;
+    creatures.current.push(this);
   }
 
-  //destroy self
-  function selfDestroy() {
-    const event = new CustomEvent("death", {
-      detail: { uid: props.uid },
-    });
-    props.earthRef?.current?.dispatchEvent(event);
+  updateToAdult() {
+    if (this.birth + 10000 < Date.now()) {
+      this.isAdult = true;
+    }
   }
-
-  function destroyNeighbour(neighbourUID) {
-    const event = new CustomEvent("death", {
-      detail: { uid: neighbourUID },
-    });
-    props.earthRef?.current?.dispatchEvent(event);
-  }
-
-  //check if there is any calamity nearby
-  function checkCalamity() {
-    if (calamities.length > 0) {
-      for (var i = 0; i < calamities.length; i++) {
-        const xDiff = Math.abs(
-          position.x + size.current / 2 - calamities[i].position.x
-        );
-        const yDiff = Math.abs(
-          position.y + size.current / 2 - calamities[i].position.y
-        );
-        const distance = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
-
-        if (distance < calamities[i].size) {
-          selfDestroy();
-        }
-      }
+  updateAbleToMate() {
+    if (this.lastBirth + 10000 < Date.now()) {
+      this.isAbleToMate = true;
     }
   }
 
-  //check if there is any water body nearby
-  function checkResources() {
-    if (resources.length > 0) {
-      for (var i = 0; i < resources.length; i++) {
-        const xDiff = Math.abs(
-          position.x + size.current / 2 - resources[i].position.x
-        );
-        const yDiff = Math.abs(
-          position.y + size.current / 2 - resources[i].position.y
-        );
+  updateNotAbleToMate() {
+    this.isAbleToMate = false;
+    this.lastBirth = Date.now();
+  }
 
-        const distance = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
+  updateFoodFound(pos, fid) {
+    this.isFoodFound = true;
+    this.foundFoodPosition = pos;
+    this.foodId = fid;
+  }
+  updateFoodEaten() {
+    this.r = this.r * 1.5;
+    this.energy = this.energy + 600;
+    this.isFoodFound = false;
+    this.foundFoodPosition = null;
+    this.foodId = null;
 
-        if (distance < resources[i].size / 2 + 30) {
-          if (distance < resources[i].size / 2) {
-            //do something here asumming the creature becomes wwater animal
-          } else {
-            increaseSize();
-          }
-        }
-      }
+  }
+
+  updateFoodNotFound() {
+    this.isFoodFound = false;
+    this.foundFoodPosition = null;
+    this.foodId = null;
+  }
+
+  updateLastFoodTime() {
+    this.lastFoodTime = Date.now();
+  }
+
+  updateCanEatFood() {
+    // if (this.lastFoodTime + 10000 < Date.now()) {
+    //   this.canEatFood = true;
+    //   this.r = this.orignalR;
+    // } else {
+    //   this.canEatFood = false;
+    // }
+    if(this.energy<300){
+      this.canEatFood = true;
+      this.r = this.orignalR;
+    }else{
+      this.canEatFood = false;
     }
   }
 
-  function changeColor() {
-    if (
-      props.birth + 10000 < Date.now() &&
-      color.localeCompare("#44FFE3") === 0
-    )
-      setColor(props.gender.localeCompare("M") === 0 ? "#E8FF95" : "#FF4489");
+  canDie() {
+    // return this.energy<20;
+    return false;
   }
 
-  function changeClassName() {
-    if (
-      props.birth + 10000 < Date.now() &&
-      className.localeCompare("babyCreature") === 0
-    )
-      setClassName("adultCreature");
+  infect() {
+    if (!this.isInfected) {
+      this.isInfected = true;
+      this.infectionTime = Date.now();
+    }
   }
 
-  function canReproduce() {
-    if (className.localeCompare("adultCreature") === 0) {
-      return true;
+  disInfect() {
+    if (this.isInfected && this.infectionTime + 10000 < Date.now()) {
+      this.isInfected = false;
+      this.infectionTime = null;
+    }
+  }
+
+  updateColor() {
+    if (this.isInfected) {
+      this.color = "#FF0000";
+    } else if (this.isAdult) {
+      this.color = this.gender == "F" ? "#FF75BF" : "#2ED9FF";
     } else {
-      return false;
+      this.color = "#ffffff";
     }
   }
 
-  function checkIfOldEnoughToDie(){
-    if(Date.now()>props.birth+50000&&Math.random()>0.97){
-      selfDestroy();
+  updateEnergy() {
+    if (this.energy > 0) {
+      this.energy -= 1;
     }
   }
-  //change position randomly *update to tendency based position change*
-  function changePosition() {
-    const pos = [1, -1];
-    const skipX = Math.floor(Math.random() * speed);
-    const skipY = Math.floor(Math.random() * speed);
+  drawBall(ctx) {
+    ctx.beginPath();
+    ctx.arc(this.pos.x, this.pos.y, this.r, 0, 2 * Math.PI);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+    ctx.closePath();
+  }
 
+  reposition(ctx, speed) {
+    const multiplier = [1, -1];
     const plusMinusX = Math.floor(Math.random() * 2);
     const plusMinusY = Math.floor(Math.random() * 2);
 
-    const newPosition = {
-      x: position.x + pos[plusMinusX] * skipX,
-      y: position.y + pos[plusMinusY] * skipY,
+    // this.acc = this.acc.unit().mult(this.acceleration);
+
+    if (this.isFoodFound && this.pos.subtr(this.foundFoodPosition).mag() < 2) {
+      this.updateFoodNotFound();
+    }
+
+    if (this.isFoodFound) {
+      this.vel = this.foundFoodPosition.subtr(this.pos).unit();
+    } else {
+      if (Math.random() > 0.991)
+        this.vel = this.vel.add(
+          new Vector(
+            multiplier[plusMinusX] * speed,
+            multiplier[plusMinusY] * speed
+          )
+        );
+      this.vel = this.vel.mult(1 - 0.01);
+    }
+
+    if(this.vel.mag()>0){
+      this.updateEnergy();
+    }
+    let newPosition = {
+      x: this.pos.add(this.vel).x,
+      y: this.pos.add(this.vel).y,
     };
 
-    if (newPosition.x + size.current + 10 > props.dim.w) {
-      newPosition.x = props.dim.w - size.current - 10;
+    let isAtBoundary = false;
+    if (newPosition.x + this.r + 10 > window.innerWidth - 300) {
+      newPosition.x = window.innerWidth - 300 - this.r - 10;
+      isAtBoundary = true;
     }
-    if (newPosition.y + size.current + 10 > props.dim.h) {
-      newPosition.y = props.dim.h - size.current - 10;
+    if (newPosition.y + this.r + 10 > window.innerHeight) {
+      newPosition.y = window.innerHeight - this.r - 10;
+      isAtBoundary = true;
     }
     if (newPosition.x < 10) {
-      newPosition.x = 10;
+      newPosition.x = 10 + this.r;
+      isAtBoundary = true;
     }
     if (newPosition.y < 10) {
-      newPosition.y = 10;
+      newPosition.y = 10 + this.r;
+      isAtBoundary = true;
     }
 
-    setPosition(newPosition);
-  }
-
-  //get all neighbouring adults
-  function getNeighbourHood() {
-    
-    const maleNeighbours = [];
-    const femaleNeighbours = [];
-    if (creatureRef?.current) {
-      const children = creatureRef.current?.parentNode?.childNodes;
-      if (children) {
-        Object.keys(children).forEach((key) => {
-          if (
-            children[key]?.className.localeCompare("adultCreature") === 0 &&
-            Math.abs(children[key].offsetLeft - position.x) < 10 &&
-            Math.abs(children[key].offsetTop - position.y) < 10 &&
-            children[key].id.localeCompare(props.uid) !== 0
-          ) {
-            if(children[key].id[0].localeCompare("F")===0){
-              femaleNeighbours.push(children[key]);
-            }else{
-               maleNeighbours.push(children[key]);
-            }
-          }
-        });
-      }
-    }
-
-    const neighbourHood = {maleNeighbours,femaleNeighbours};
-    return neighbourHood;
-  }
-
-  //send birth request to earth
-  function birthRequest(neighbour) {
-    const mother = { id: props.uid, position: position, size: size.current };
-    const father = {
-      id: neighbour.id,
-      position: {
-        x: neighbour.offsetLeft,
-        y: neighbour.offsetTop,
-      },
-      size: neighbour.clientWidth,
-    };
-
-    const event = new CustomEvent("birth", {
-      detail: { mother, father },
-    });
-    props.earthRef?.current?.dispatchEvent(event);
-  }
-
-  //regular activity function
-  function doActivities() {
-    checkIfOldEnoughToDie()
-    checkCalamity();
-    checkResources();
-
-    changePosition();
-    changeColor();
-    changeClassName();
-
-    const { maleNeighbours,femaleNeighbours } = getNeighbourHood();
-    if(props.uid[0].localeCompare("F")===0){
-      if(canReproduce()&&maleNeighbours.length>0){
-        birthRequest(maleNeighbours[0]);
-      }
-    }else{
-      if (maleNeighbours.length>0 && maleNeighbours[0].clientWidth < size.current){
-        destroyNeighbour(maleNeighbours[0].id);
-      }
-    }
-
-    
-  }
-
-  useEffect(() => {
-    if (status.localeCompare("Playing") === 0) {
-      const interval = setInterval(() => {
-        doActivities();
-      }, Math.floor(Math.random() * 500) + 10);
-
-      
-      return () => {
-        clearInterval(interval);
+    if (isAtBoundary) {
+      this.vel = this.vel.mult(-1);
+      newPosition = {
+        x: this.pos.add(this.vel).x,
+        y: this.pos.add(this.vel).y,
       };
     }
-  }, [position, status, speed]);
 
-  
-  return (
-    <div
-      className={className}
-      ref={creatureRef}
-      id={props.uid}
-      style={{
-        borderRadius: size.current / 2,
-        height: size.current,
-        width: size.current,
-        backgroundColor: color,
-        position: "absolute",
-        top: position.y,
-        left: position.x,
-        transition: "all 0.5s ease-in-out",
-        WebkitBoxShadow:
-          props.birth + 10000 > Date.now() ? "0 0 10px #44FFE3" : "none",
-        boxShadow:
-          props.birth + 10000 > Date.now() ? "0 0 10px #44FFE3" : "none",
-      }}
-    ></div>
-  );
-};
+    this.pos = new Vector(newPosition.x, newPosition.y);
 
-export default Creature;
+    // console.log(this.pos);
+  }
+
+
+
+
+
+  updateCreature(ctx,speed){
+    this.reposition(ctx,speed);
+    this.updateToAdult();
+    this.updateAbleToMate();
+    this.updateCanEatFood();
+    // this.disInfect();
+    this.updateColor();
+    this.drawBall(ctx);
+  }
+}

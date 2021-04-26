@@ -1,11 +1,8 @@
-import logo from './logo.svg';
-import './App.css';
-import Ripples from "react-ripples";
+import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { GlobalContextProvider } from './context/globalContext';
-import Earth from "./components/earth";
-import Statisitcs from "./components/statistics"
-import { Row } from 'react-bootstrap';
+import { GlobalContextProvider } from "./context/globalContext";
+import Earth from "./components/core/earth";
+import Statisitcs from "./components/statistics/statistics";
 import { ThemeProvider } from "./context/themeContext";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import Docs from "./components/docs/docs";

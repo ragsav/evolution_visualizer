@@ -6,11 +6,13 @@ const GlobalActionsContext = React.createContext(undefined);
 
 const GlobalContextProvider = ({ children }) => {
   const chartDataOrg = useRef([]);
-  const [chartData, setChartData] = useState(null);
   const [initialPopulation, setInitialPopulation] = useState(50);
+  const [chartData, setChartData] = useState([initialPopulation]);
+  
   const [status, setStatus] = useState("Paused");
   const [restarted, setRestart] = useState(true);
   const [speed, setSpeed] = useState(0.5);
+  const [foodSpawnRate, setFoodSpawnRate] = useState(0.1);
   const [totalPopulation, setTotalPopulation] = useState(50);
   // const [calamity, setCalamity] = useState("radiation");
 
@@ -20,8 +22,10 @@ const GlobalContextProvider = ({ children }) => {
   const [calamitySize, setCalamitySize] = useState(100);
   const [calamityAmplitude, setCalamityAmplitude] = useState(6);
   const [calamities, setCalamities] = useState([]);
+  const [isChartModalVisible, setIsChartModalVisible] = useState(false);
 
   const calamitiesOrg = useRef([]);
+  const timerRef = useRef(0);
 
 
 
@@ -129,17 +133,14 @@ const GlobalContextProvider = ({ children }) => {
   }, [calamityPosition]);
 
   useEffect(() => {
-    chartDataOrg.current.push({
-      time: Date.now(),
-      population: totalPopulation,
-    });
+    chartDataOrg.current.push(totalPopulation);
+    // timerRef.current  +=  1;
+    // setChartData(chartDataOrg.current);
+    
   }, [totalPopulation]);
 
-  useEffect(() => {
-    if (restarted) {
-      setChartData(chartDataOrg.current);
-    }
-  }, [restarted]);
+
+  
 
   return (
     <GlobalStateContext.Provider
@@ -160,6 +161,8 @@ const GlobalContextProvider = ({ children }) => {
         resourceType,
         resourceSize,
         chartData,
+        foodSpawnRate,
+        isChartModalVisible,
       }}
     >
       <GlobalActionsContext.Provider
@@ -178,6 +181,8 @@ const GlobalContextProvider = ({ children }) => {
           setResourcePosition,
           setResourceType,
           setResourceSize,
+          setFoodSpawnRate,
+          setIsChartModalVisible,
         }}
       >
         {children}

@@ -8,17 +8,19 @@ export function matingPool(creatures) {
     const observer = creatures.current[i];
     if (
       !vis[i] &&
-      observer.gender == "F" &&
-      observer.isAdult &&
-      observer.isAbleToMate
+      observer.isFemale() &&
+      observer.isAdult() &&
+      observer.isFertile()
     ) {
       vis[i] = true;
       for (let j = i + 1; j < l; j++) {
         const target = creatures.current[j];
         if (
           !vis[j] &&
-          target.gender == "M" &&
-          target.isAdult &&
+          target.isMale()  &&
+          target.isAdult()  &&
+          target.isFertile()  &&
+          observer.canReproduce(target)  &&
           observer.pos.subtr(target.pos).mag() < 5
         ) {
           pairs.push({ mother: observer, father: target });
@@ -36,6 +38,8 @@ export function matingPool(creatures) {
       Math.random() > 0.5 ? "F" : "M",
       creatures
     );
-    mother.updateNotAbleToMate();
+    mother.energy -= 600;
+    mother.lastBirth = Date.now();
   });
+  
 }

@@ -2,56 +2,103 @@ import { Vector } from "./vector";
 import { v4 as uuidv4 } from "uuid";
 export class Creature {
   constructor(x, y, r, gender, creatures) {
+    //gene
     this.id = uuidv4();
-    this.pos = new Vector(x, y);
     this.r = r;
+    this.gender = gender;
     this.sightRange = 5;
     this.smellRange = 20;
-    this.gender = gender;
-    this.vel = new Vector(0, 0);
-    this.acc = new Vector(0, 0);
-    this.acceleration = 0;
-    this.birth = Date.now();
+    this.dob = Date.now();
     this.color = "#ffffff";
-    this.isAdult = false;
-    this.lastBirth = Date.now();
-    this.isAbleToMate = false;
+    this.parents = null;
+    this.children = null;
+    this.isSightActivated = true;
+    this.isSmellActivated = true;
+
+    //food
     this.isFoodFound = false;
     this.foundFoodPosition = null;
     this.foodId = null;
     this.lastFoodTime = Date.now();
-    this.canEatFood = false;
+    this.energy = 600;
+
+    //reproduction
+    this.fertility = "fertile";
+    this.fertilityChance = 1;
+    this.fertilityType = "all";
+    this.fertilityConstraints = "all";
+    this.minFertilityEnergy = 600;
+    this.isFertilityMemoryActivated = true;
+    this.lastBirth = Date.now();
+
+    //movement
+    this.pos = new Vector(x, y);
+    this.vel = new Vector(0, 0);
+
+    //immunity
     this.isInfected = false;
     this.infectionTime = null;
-    this.energy = 600;
-    this.parents = null;
-    this.children = null;
+
     creatures.current.push(this);
   }
 
-  updateToAdult() {
-    if (this.birth + 10000 < Date.now()) {
-      this.isAdult = true;
-    }
-  }
-  updateAbleToMate() {
-    if (this.lastBirth + 10000 < Date.now()) {
-      this.isAbleToMate = true;
-    }
+  isAdult() {
+    return this.dob + 10000 < Date.now();
   }
 
-  updateNotAbleToMate() {
-    this.isAbleToMate = false;
-    this.lastBirth = Date.now();
+  isMale() {
+    return this.gender == "M";
   }
 
+  isFemale() {
+    return this.gender == "F";
+  }
+
+  isBisexual() {
+    return this.gender == "B";
+  }
+
+  isFertile() {
+    if (this.fertility.localeCompare("infertile") === 0) return false;
+    if (
+      this.fertility.localeCompare("semiFertile") === 0 &&
+      this.fertilityChance < Math.random()
+    )
+      return false;
+    return true;
+  }
+
+  canReproduce(partner) {
+    if (partner.isMale()&&this.lastBirth+5000<Date.now()) {
+      if (
+        this.isFertilityMemoryActivated &&
+        this.energy > this.minFertilityEnergy
+      ) {
+        return true;
+      } else if (!this.isFertilityMemoryActivated) {
+        return true;
+      } else if (
+        this.isFertilityMemoryActivated &&
+        this.energy < this.minFertilityEnergy
+      ) {
+        return false;
+      }
+    }
+    return false;
+  }
+
+
+  canSearchFood(){
+    return this.isSightActivated&&this.isSmellActivated;
+  }
   updateFoodFound(pos, fid) {
     this.isFoodFound = true;
     this.foundFoodPosition = pos;
     this.foodId = fid;
   }
+
   updateFoodEaten() {
-    this.energy = this.energy + 600 + Math.random() * 400;
+    this.energy = this.energy + 800 + Math.random() * 400;
     this.isFoodFound = false;
     this.foundFoodPosition = null;
     this.foodId = null;
@@ -63,21 +110,12 @@ export class Creature {
     this.foodId = null;
   }
 
-  updateLastFoodTime() {
-    this.lastFoodTime = Date.now();
-  }
-
-  updateCanEatFood() {
-    if (this.energy < 300) {
-      this.canEatFood = true;
-    } else {
-      this.canEatFood = false;
-    }
+  canEatFood() {
+    return this.energy < 2000;
   }
 
   canDie() {
     return this.energy < 20;
-    // return false;
   }
 
   infect() {
@@ -97,7 +135,7 @@ export class Creature {
   updateColor() {
     if (this.isInfected) {
       this.color = "#FF0000";
-    } else if (this.isAdult) {
+    } else if (this.isAdult()) {
       this.color = this.gender == "F" ? "#FF75BF" : "#2ED9FF";
     } else {
       this.color = "#ffffff";
@@ -112,7 +150,9 @@ export class Creature {
         this.energy -= 1;
       }
     }
+    
   }
+
   drawBall(ctx) {
     ctx.beginPath();
     ctx.arc(this.pos.x, this.pos.y, this.r, 0, 2 * Math.PI);
@@ -186,9 +226,6 @@ export class Creature {
 
   updateCreature(ctx, speed) {
     this.reposition(ctx, speed);
-    this.updateToAdult();
-    this.updateAbleToMate();
-    this.updateCanEatFood();
     this.disInfect();
     this.updateColor();
     this.drawBall(ctx);
